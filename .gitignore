@@ -1,0 +1,11 @@
+.DS_Store
+
+# Local build and release outputs
+DerivedData/
+dist/
+*.xcarchive
+
+# Xcode user-local state
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint

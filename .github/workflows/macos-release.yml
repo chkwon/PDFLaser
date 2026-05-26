@@ -1,0 +1,175 @@
+name: macOS Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version tag
+        required: true
+        default: v0.1
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+env:
+  APP_NAME: PDF Laser
+  SCHEME: PDFLaser-macOS
+  PROJECT: PDFLaser.xcodeproj
+  TEAM_ID: 6CM5MD58K2
+
+jobs:
+  build-sign-notarize:
+    name: Build, sign, notarize
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Resolve release version
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME}"
+          fi
+
+          if [[ ! "${VERSION}" =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
+            echo "Release version must look like v0.1, got: ${VERSION}" >&2
+            exit 1
+          fi
+
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "short_version=${VERSION#v}" >> "${GITHUB_OUTPUT}"
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Import Developer ID certificate
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_APPLICATION_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CERTIFICATE_PATH="${RUNNER_TEMP}/developer_id_application.p12"
+          KEYCHAIN_PATH="${RUNNER_TEMP}/app-signing.keychain-db"
+
+          echo "${CERTIFICATE_BASE64}" | base64 -D > "${CERTIFICATE_PATH}"
+
+          security create-keychain -p "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_PATH}"
+          security set-keychain-settings -lut 21600 "${KEYCHAIN_PATH}"
+          security unlock-keychain -p "${KEYCHAIN_PASSWORD}" "${KEYCHAIN_PATH}"
+          security import "${CERTIFICATE_PATH}" \
+            -P "${CERTIFICATE_PASSWORD}" \
+            -A \
+            -t cert \
+            -f pkcs12 \
+            -k "${KEYCHAIN_PATH}"
+          security list-keychains -d user -s "${KEYCHAIN_PATH}"
+          security set-key-partition-list \
+            -S apple-tool:,apple:,codesign: \
+            -s \
+            -k "${KEYCHAIN_PASSWORD}" \
+            "${KEYCHAIN_PATH}"
+
+      - name: Write notarization API key
+        id: notary-key
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PRIVATE_KEYS_DIR="${RUNNER_TEMP}/private_keys"
+          KEY_PATH="${PRIVATE_KEYS_DIR}/AuthKey_${ASC_KEY_ID}.p8"
+
+          mkdir -p "${PRIVATE_KEYS_DIR}"
+          printf "%s" "${ASC_PRIVATE_KEY}" > "${KEY_PATH}"
+          chmod 600 "${KEY_PATH}"
+
+          echo "key_path=${KEY_PATH}" >> "${GITHUB_OUTPUT}"
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build signed Release app
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          xcodebuild \
+            -project "${PROJECT}" \
+            -scheme "${SCHEME}" \
+            -configuration Release \
+            -destination "generic/platform=macOS" \
+            -derivedDataPath "${RUNNER_TEMP}/DerivedData" \
+            ONLY_ACTIVE_ARCH=NO \
+            ARCHS="arm64 x86_64" \
+            MARKETING_VERSION="${{ steps.release.outputs.short_version }}" \
+            CURRENT_PROJECT_VERSION="${GITHUB_RUN_NUMBER}" \
+            clean build
+
+      - name: Verify signature and architecture
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APP_PATH="${RUNNER_TEMP}/DerivedData/Build/Products/Release/${APP_NAME}.app"
+          EXECUTABLE_PATH="${APP_PATH}/Contents/MacOS/${APP_NAME}"
+
+          codesign --verify --deep --strict --verbose=2 "${APP_PATH}"
+          codesign -dv --verbose=4 "${APP_PATH}"
+          lipo -info "${EXECUTABLE_PATH}"
+
+      - name: Notarize and staple
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APP_PATH="${RUNNER_TEMP}/DerivedData/Build/Products/Release/${APP_NAME}.app"
+          NOTARY_ZIP="${RUNNER_TEMP}/PDF-Laser-${{ steps.release.outputs.version }}-notary.zip"
+
+          ditto -c -k --keepParent "${APP_PATH}" "${NOTARY_ZIP}"
+
+          xcrun notarytool submit "${NOTARY_ZIP}" \
+            --key "${{ steps.notary-key.outputs.key_path }}" \
+            --key-id "${ASC_KEY_ID}" \
+            --issuer "${ASC_ISSUER_ID}" \
+            --wait
+
+          xcrun stapler staple "${APP_PATH}"
+          xcrun stapler validate "${APP_PATH}"
+          spctl --assess --type execute --verbose=4 "${APP_PATH}"
+
+      - name: Package release zip
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APP_PATH="${RUNNER_TEMP}/DerivedData/Build/Products/Release/${APP_NAME}.app"
+          ZIP_PATH="${RUNNER_TEMP}/PDF-Laser-${{ steps.release.outputs.version }}-macOS-universal.zip"
+
+          ditto -c -k --keepParent "${APP_PATH}" "${ZIP_PATH}"
+          echo "zip_path=${ZIP_PATH}" >> "${GITHUB_OUTPUT}"
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PDF-Laser-${{ steps.release.outputs.version }}-macOS-universal
+          path: ${{ steps.package.outputs.zip_path }}
+          if-no-files-found: error

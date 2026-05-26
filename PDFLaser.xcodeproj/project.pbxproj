@@ -1,0 +1,703 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		07FF399418E0D13D41CE60E0 /* PlatformColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7C9C40C98FDB6D20FC57C4 /* PlatformColor.swift */; };
+		0D60CA1A3F3705C9CE10C728 /* PenStroke.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F93693A0BF4AF3F4F8586C1 /* PenStroke.swift */; };
+		13F0A51B199BB43E2D2853AD /* PDFPresentationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD394456B4447FFE68317BF /* PDFPresentationState.swift */; };
+		1DDFAED4A67BAC811E491C17 /* PresentationTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0220E00BA53D30C0F140E9 /* PresentationTool.swift */; };
+		2D027E7F46AE70EAACC5069B /* PDFPresentationStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD3513815FF5073E7A2D3C7 /* PDFPresentationStateTests.swift */; };
+		435BEB25F573BE39EC129D17 /* PresentationCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EF8BA6E55DFDCE6159508AD /* PresentationCanvasView.swift */; };
+		49ED04B5445603A498B62E58 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0576FA9085B09153D41C5E6F /* Assets.xcassets */; };
+		4F36CB6B0F2AA647BE88E7F6 /* PresenterToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 734CBE59C670FEEBFC7BC54F /* PresenterToolbar.swift */; };
+		5E1ED6D468C6B382219FD7E4 /* PDFLaserApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D33463E781E970B0FF3DE1 /* PDFLaserApp.swift */; };
+		675B5FE9B0951592E19DF10B /* PlatformColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7C9C40C98FDB6D20FC57C4 /* PlatformColor.swift */; };
+		6CE54543AA1BC81CA4B78B65 /* PDFSlideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DF83F456AA51F47A0E4CE /* PDFSlideView.swift */; };
+		714A3A5C1F6BD12814D2B925 /* PDFMarkupExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8B4A22C8E4A0FB45BC73CCB /* PDFMarkupExporter.swift */; };
+		784E083D8CDDD93D09BEAC2C /* PDFMarkupExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8B4A22C8E4A0FB45BC73CCB /* PDFMarkupExporter.swift */; };
+		83A5D84CFC73D524BA88EB50 /* PDFPresentationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD394456B4447FFE68317BF /* PDFPresentationState.swift */; };
+		86172C0C8CA4D3F65F3505DC /* MacPDFViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E61A6C9777885CE2823B98A4 /* MacPDFViewRepresentable.swift */; };
+		8C6F854121A46591AEB35595 /* PresentationCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EF8BA6E55DFDCE6159508AD /* PresentationCanvasView.swift */; };
+		900E36181F2D9554AC85A68D /* ExternalDisplayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB30D5F2047FD459D5BA1B31 /* ExternalDisplayManager.swift */; };
+		9759219E81A692A401B70B10 /* ExportedPDFDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E87C521B023F7B750FAD04A /* ExportedPDFDocument.swift */; };
+		A5F09583D19D8377AF6103A2 /* PenStroke.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F93693A0BF4AF3F4F8586C1 /* PenStroke.swift */; };
+		A756150AA392498A0E607D1E /* LaserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C100E34EDE7734E2013C01B7 /* LaserSettings.swift */; };
+		B4C7163007B801D839531A8D /* TouchInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998E92F34D54648000ACE90E /* TouchInputView.swift */; };
+		B7D5B7E07A3A49C334A2A36D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5DDB48F1EB546270C97BCAB /* ContentView.swift */; };
+		BACAD34B253DD739F075C4A0 /* PDFLaserApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D33463E781E970B0FF3DE1 /* PDFLaserApp.swift */; };
+		BDDFFD7B7150AF9035BBA1AE /* IOSPDFViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6BC943281E5AA0C8414A22C /* IOSPDFViewRepresentable.swift */; };
+		BE9C92C0B7C21476E1060040 /* PresenterToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 734CBE59C670FEEBFC7BC54F /* PresenterToolbar.swift */; };
+		C4287750B705834B14B04AB4 /* LaserPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFC694BCF3F5BF2F314379F /* LaserPoint.swift */; };
+		C5F334702B8741F65E21CAD8 /* PDFDocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4099C4EFB974B3874394E4FC /* PDFDocumentLoader.swift */; };
+		C61D973F8319E588CDA4CA35 /* PDFSlideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DF83F456AA51F47A0E4CE /* PDFSlideView.swift */; };
+		C6390A348372E8B94C376403 /* MacKeyboardHandlingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE7308E931FA8F522097673A /* MacKeyboardHandlingView.swift */; };
+		D63E778F22049A239A99E56F /* GeometryNormalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037ECFDF6242ABB8502E5DA9 /* GeometryNormalization.swift */; };
+		D70D8573571C1B3EB4E8155A /* LaserPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFC694BCF3F5BF2F314379F /* LaserPoint.swift */; };
+		DB910C310D2DB1872135B193 /* PDFDocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4099C4EFB974B3874394E4FC /* PDFDocumentLoader.swift */; };
+		DF714BF34B41F324CE7DE00F /* LaserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = C100E34EDE7734E2013C01B7 /* LaserSettings.swift */; };
+		E53B85B1F4174A725D674397 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0576FA9085B09153D41C5E6F /* Assets.xcassets */; };
+		E5EA339EDB4C696F77C4A2EF /* ExportedPDFDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E87C521B023F7B750FAD04A /* ExportedPDFDocument.swift */; };
+		E653B866E867EF8B8BD27DB6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5DDB48F1EB546270C97BCAB /* ContentView.swift */; };
+		E769CD5D29812FADAFC398E6 /* GeometryNormalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037ECFDF6242ABB8502E5DA9 /* GeometryNormalization.swift */; };
+		F41CD5983D6E7434B0A21D78 /* PresentationTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0220E00BA53D30C0F140E9 /* PresentationTool.swift */; };
+		FCBB646E0448887940453822 /* MacPointerInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347E8814DAF6EA5469254DE3 /* MacPointerInputView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E0F2748E36D1D035B2F7FC65 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 145015171DBB0790A03A7E4E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9E5F565F6E02D94E387180B2;
+			remoteInfo = "PDFLaser-macOS";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		037ECFDF6242ABB8502E5DA9 /* GeometryNormalization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeometryNormalization.swift; sourceTree = "<group>"; };
+		0576FA9085B09153D41C5E6F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0F93693A0BF4AF3F4F8586C1 /* PenStroke.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PenStroke.swift; sourceTree = "<group>"; };
+		0FD3513815FF5073E7A2D3C7 /* PDFPresentationStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPresentationStateTests.swift; sourceTree = "<group>"; };
+		226FBBAF24B3AEC6E95910ED /* PDFLaser-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "PDFLaser-macOS.entitlements"; sourceTree = "<group>"; };
+		347E8814DAF6EA5469254DE3 /* MacPointerInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacPointerInputView.swift; sourceTree = "<group>"; };
+		4099C4EFB974B3874394E4FC /* PDFDocumentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFDocumentLoader.swift; sourceTree = "<group>"; };
+		4E87C521B023F7B750FAD04A /* ExportedPDFDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportedPDFDocument.swift; sourceTree = "<group>"; };
+		584E3148BC600A75919F5BD7 /* PDF Laser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PDF Laser.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6EF8BA6E55DFDCE6159508AD /* PresentationCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentationCanvasView.swift; sourceTree = "<group>"; };
+		734CBE59C670FEEBFC7BC54F /* PresenterToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenterToolbar.swift; sourceTree = "<group>"; };
+		8B0220E00BA53D30C0F140E9 /* PresentationTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentationTool.swift; sourceTree = "<group>"; };
+		998E92F34D54648000ACE90E /* TouchInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchInputView.swift; sourceTree = "<group>"; };
+		A7D33463E781E970B0FF3DE1 /* PDFLaserApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFLaserApp.swift; sourceTree = "<group>"; };
+		A8B4A22C8E4A0FB45BC73CCB /* PDFMarkupExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFMarkupExporter.swift; sourceTree = "<group>"; };
+		A94ED15EAB1B665CC5015481 /* PDF Laser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PDF Laser.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB30D5F2047FD459D5BA1B31 /* ExternalDisplayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalDisplayManager.swift; sourceTree = "<group>"; };
+		BCFC694BCF3F5BF2F314379F /* LaserPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaserPoint.swift; sourceTree = "<group>"; };
+		BE7C9C40C98FDB6D20FC57C4 /* PlatformColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformColor.swift; sourceTree = "<group>"; };
+		C100E34EDE7734E2013C01B7 /* LaserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaserSettings.swift; sourceTree = "<group>"; };
+		C56DF83F456AA51F47A0E4CE /* PDFSlideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFSlideView.swift; sourceTree = "<group>"; };
+		DBD394456B4447FFE68317BF /* PDFPresentationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPresentationState.swift; sourceTree = "<group>"; };
+		DE7308E931FA8F522097673A /* MacKeyboardHandlingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacKeyboardHandlingView.swift; sourceTree = "<group>"; };
+		DEA2704A79D8F0010F9F7B9A /* PDFLaserTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PDFLaserTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E61A6C9777885CE2823B98A4 /* MacPDFViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacPDFViewRepresentable.swift; sourceTree = "<group>"; };
+		E6BC943281E5AA0C8414A22C /* IOSPDFViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPDFViewRepresentable.swift; sourceTree = "<group>"; };
+		F5DDB48F1EB546270C97BCAB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		134D1C480C5D92E358CB679A /* iPadOS */ = {
+			isa = PBXGroup;
+			children = (
+				AB30D5F2047FD459D5BA1B31 /* ExternalDisplayManager.swift */,
+				E6BC943281E5AA0C8414A22C /* IOSPDFViewRepresentable.swift */,
+				998E92F34D54648000ACE90E /* TouchInputView.swift */,
+			);
+			path = iPadOS;
+			sourceTree = "<group>";
+		};
+		1C0F25DAEE643FCE7F46F8DC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A94ED15EAB1B665CC5015481 /* PDF Laser.app */,
+				584E3148BC600A75919F5BD7 /* PDF Laser.app */,
+				DEA2704A79D8F0010F9F7B9A /* PDFLaserTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		28403FFD275D9D5E6F9BFDD7 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				037ECFDF6242ABB8502E5DA9 /* GeometryNormalization.swift */,
+				BCFC694BCF3F5BF2F314379F /* LaserPoint.swift */,
+				C100E34EDE7734E2013C01B7 /* LaserSettings.swift */,
+				DBD394456B4447FFE68317BF /* PDFPresentationState.swift */,
+				0F93693A0BF4AF3F4F8586C1 /* PenStroke.swift */,
+				BE7C9C40C98FDB6D20FC57C4 /* PlatformColor.swift */,
+				8B0220E00BA53D30C0F140E9 /* PresentationTool.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		2FA47900D9CB7B4DBC41063C /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				0576FA9085B09153D41C5E6F /* Assets.xcassets */,
+				A7D33463E781E970B0FF3DE1 /* PDFLaserApp.swift */,
+				28403FFD275D9D5E6F9BFDD7 /* Models */,
+				4F92410336F80CC8CF0FC426 /* Services */,
+				4F669CAF5BDC4169C9797CC8 /* Views */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		341F845D628966202806512C /* Platform */ = {
+			isa = PBXGroup;
+			children = (
+				134D1C480C5D92E358CB679A /* iPadOS */,
+			);
+			path = Platform;
+			sourceTree = "<group>";
+		};
+		3CF605F38868449E4FB01097 /* PDFLaser */ = {
+			isa = PBXGroup;
+			children = (
+				7921A009F599CF849B9F6D44 /* iPadOS */,
+				9D749C12EEB8FF7D859F729F /* macOS */,
+				2FA47900D9CB7B4DBC41063C /* Shared */,
+				FB10441645624F55911963FF /* Tests */,
+			);
+			path = PDFLaser;
+			sourceTree = "<group>";
+		};
+		4F669CAF5BDC4169C9797CC8 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F5DDB48F1EB546270C97BCAB /* ContentView.swift */,
+				C56DF83F456AA51F47A0E4CE /* PDFSlideView.swift */,
+				6EF8BA6E55DFDCE6159508AD /* PresentationCanvasView.swift */,
+				734CBE59C670FEEBFC7BC54F /* PresenterToolbar.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		4F92410336F80CC8CF0FC426 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				4E87C521B023F7B750FAD04A /* ExportedPDFDocument.swift */,
+				4099C4EFB974B3874394E4FC /* PDFDocumentLoader.swift */,
+				A8B4A22C8E4A0FB45BC73CCB /* PDFMarkupExporter.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		60B9B66BD812CB3D0B38406A /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				DE7308E931FA8F522097673A /* MacKeyboardHandlingView.swift */,
+				E61A6C9777885CE2823B98A4 /* MacPDFViewRepresentable.swift */,
+				347E8814DAF6EA5469254DE3 /* MacPointerInputView.swift */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		7921A009F599CF849B9F6D44 /* iPadOS */ = {
+			isa = PBXGroup;
+			children = (
+				341F845D628966202806512C /* Platform */,
+			);
+			path = iPadOS;
+			sourceTree = "<group>";
+		};
+		849D30D8E766DAAF600BEAD8 /* Platform */ = {
+			isa = PBXGroup;
+			children = (
+				60B9B66BD812CB3D0B38406A /* macOS */,
+			);
+			path = Platform;
+			sourceTree = "<group>";
+		};
+		9D749C12EEB8FF7D859F729F /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				226FBBAF24B3AEC6E95910ED /* PDFLaser-macOS.entitlements */,
+				849D30D8E766DAAF600BEAD8 /* Platform */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		C0565D18F55C07492EC1023E = {
+			isa = PBXGroup;
+			children = (
+				3CF605F38868449E4FB01097 /* PDFLaser */,
+				1C0F25DAEE643FCE7F46F8DC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FB10441645624F55911963FF /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				0FD3513815FF5073E7A2D3C7 /* PDFPresentationStateTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		61C079BC5841E9EBAC572332 /* PDFLaserTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5CFE6F9E96208AB8C18E59B1 /* Build configuration list for PBXNativeTarget "PDFLaserTests" */;
+			buildPhases = (
+				3C1C563A2AA2845447279C68 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9CF7CC2D397DC94577C8653A /* PBXTargetDependency */,
+			);
+			name = PDFLaserTests;
+			packageProductDependencies = (
+			);
+			productName = PDFLaserTests;
+			productReference = DEA2704A79D8F0010F9F7B9A /* PDFLaserTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		9038FABCAACE83CC2954BD71 /* PDFLaser-iPadOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DD5A6C776002D7C1EEC64FCE /* Build configuration list for PBXNativeTarget "PDFLaser-iPadOS" */;
+			buildPhases = (
+				E3FC90200E0CC20B4F6C4644 /* Sources */,
+				3517C47ED84130A7CFB658F4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "PDFLaser-iPadOS";
+			packageProductDependencies = (
+			);
+			productName = "PDFLaser-iPadOS";
+			productReference = A94ED15EAB1B665CC5015481 /* PDF Laser.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9E5F565F6E02D94E387180B2 /* PDFLaser-macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DED0287CA4CB402CBC6C34CB /* Build configuration list for PBXNativeTarget "PDFLaser-macOS" */;
+			buildPhases = (
+				5C2C34F458A36AA34BBE9603 /* Sources */,
+				7F79E2FE1D3990242142C509 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "PDFLaser-macOS";
+			packageProductDependencies = (
+			);
+			productName = "PDFLaser-macOS";
+			productReference = 584E3148BC600A75919F5BD7 /* PDF Laser.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		145015171DBB0790A03A7E4E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2650;
+			};
+			buildConfigurationList = 366917E15A52F0E8217447ED /* Build configuration list for PBXProject "PDFLaser" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = C0565D18F55C07492EC1023E;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 1C0F25DAEE643FCE7F46F8DC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9038FABCAACE83CC2954BD71 /* PDFLaser-iPadOS */,
+				9E5F565F6E02D94E387180B2 /* PDFLaser-macOS */,
+				61C079BC5841E9EBAC572332 /* PDFLaserTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3517C47ED84130A7CFB658F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49ED04B5445603A498B62E58 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7F79E2FE1D3990242142C509 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E53B85B1F4174A725D674397 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3C1C563A2AA2845447279C68 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2D027E7F46AE70EAACC5069B /* PDFPresentationStateTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5C2C34F458A36AA34BBE9603 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B7D5B7E07A3A49C334A2A36D /* ContentView.swift in Sources */,
+				9759219E81A692A401B70B10 /* ExportedPDFDocument.swift in Sources */,
+				E769CD5D29812FADAFC398E6 /* GeometryNormalization.swift in Sources */,
+				C4287750B705834B14B04AB4 /* LaserPoint.swift in Sources */,
+				A756150AA392498A0E607D1E /* LaserSettings.swift in Sources */,
+				C6390A348372E8B94C376403 /* MacKeyboardHandlingView.swift in Sources */,
+				86172C0C8CA4D3F65F3505DC /* MacPDFViewRepresentable.swift in Sources */,
+				FCBB646E0448887940453822 /* MacPointerInputView.swift in Sources */,
+				C5F334702B8741F65E21CAD8 /* PDFDocumentLoader.swift in Sources */,
+				5E1ED6D468C6B382219FD7E4 /* PDFLaserApp.swift in Sources */,
+				714A3A5C1F6BD12814D2B925 /* PDFMarkupExporter.swift in Sources */,
+				83A5D84CFC73D524BA88EB50 /* PDFPresentationState.swift in Sources */,
+				C61D973F8319E588CDA4CA35 /* PDFSlideView.swift in Sources */,
+				A5F09583D19D8377AF6103A2 /* PenStroke.swift in Sources */,
+				675B5FE9B0951592E19DF10B /* PlatformColor.swift in Sources */,
+				435BEB25F573BE39EC129D17 /* PresentationCanvasView.swift in Sources */,
+				1DDFAED4A67BAC811E491C17 /* PresentationTool.swift in Sources */,
+				4F36CB6B0F2AA647BE88E7F6 /* PresenterToolbar.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E3FC90200E0CC20B4F6C4644 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E653B866E867EF8B8BD27DB6 /* ContentView.swift in Sources */,
+				E5EA339EDB4C696F77C4A2EF /* ExportedPDFDocument.swift in Sources */,
+				900E36181F2D9554AC85A68D /* ExternalDisplayManager.swift in Sources */,
+				D63E778F22049A239A99E56F /* GeometryNormalization.swift in Sources */,
+				BDDFFD7B7150AF9035BBA1AE /* IOSPDFViewRepresentable.swift in Sources */,
+				D70D8573571C1B3EB4E8155A /* LaserPoint.swift in Sources */,
+				DF714BF34B41F324CE7DE00F /* LaserSettings.swift in Sources */,
+				DB910C310D2DB1872135B193 /* PDFDocumentLoader.swift in Sources */,
+				BACAD34B253DD739F075C4A0 /* PDFLaserApp.swift in Sources */,
+				784E083D8CDDD93D09BEAC2C /* PDFMarkupExporter.swift in Sources */,
+				13F0A51B199BB43E2D2853AD /* PDFPresentationState.swift in Sources */,
+				6CE54543AA1BC81CA4B78B65 /* PDFSlideView.swift in Sources */,
+				0D60CA1A3F3705C9CE10C728 /* PenStroke.swift in Sources */,
+				07FF399418E0D13D41CE60E0 /* PlatformColor.swift in Sources */,
+				8C6F854121A46591AEB35595 /* PresentationCanvasView.swift in Sources */,
+				F41CD5983D6E7434B0A21D78 /* PresentationTool.swift in Sources */,
+				BE9C92C0B7C21476E1060040 /* PresenterToolbar.swift in Sources */,
+				B4C7163007B801D839531A8D /* TouchInputView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9CF7CC2D397DC94577C8653A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9E5F565F6E02D94E387180B2 /* PDFLaser-macOS */;
+			targetProxy = E0F2748E36D1D035B2F7FC65 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		00F7978CCFD0A9D244F0F9A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "PDF Laser";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chkwon.PDFLaser.iPadOS;
+				PRODUCT_NAME = "PDF Laser";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Debug;
+		};
+		2C3DF3736B3864561D0E0451 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "PDF Laser";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.chkwon.PDFLaser.iPadOS;
+				PRODUCT_NAME = "PDF Laser";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Release;
+		};
+		2EE487111FEB62186CAAB4D2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MARKETING_VERSION = 0.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_MODULE_NAME = PDFLaser;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		3B062F311455832B0B24248B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MARKETING_VERSION = 0.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_MODULE_NAME = PDFLaser;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		50184941070E74773356DA56 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chkwon.PDFLaserTests;
+				PRODUCT_MODULE_NAME = PDFLaserTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PDF Laser.app/Contents/MacOS/PDF Laser";
+			};
+			name = Release;
+		};
+		530DB0678FBC469540186EFB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "PDFLaser/macOS/PDFLaser-macOS.entitlements";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "PDF Laser";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chkwon.PDFLaser.macOS;
+				PRODUCT_NAME = "PDF Laser";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		67EADBFD538A7FD13D4C6B83 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chkwon.PDFLaserTests;
+				PRODUCT_MODULE_NAME = PDFLaserTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PDF Laser.app/Contents/MacOS/PDF Laser";
+			};
+			name = Debug;
+		};
+		C3AA1FA09D43B5AEAB1D7AAB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "PDFLaser/macOS/PDFLaser-macOS.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 6CM5MD58K2;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "PDF Laser";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				OTHER_CODE_SIGN_FLAGS = "--timestamp";
+				PRODUCT_BUNDLE_IDENTIFIER = com.chkwon.PDFLaser.macOS;
+				PRODUCT_NAME = "PDF Laser";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		366917E15A52F0E8217447ED /* Build configuration list for PBXProject "PDFLaser" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2EE487111FEB62186CAAB4D2 /* Debug */,
+				3B062F311455832B0B24248B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5CFE6F9E96208AB8C18E59B1 /* Build configuration list for PBXNativeTarget "PDFLaserTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				67EADBFD538A7FD13D4C6B83 /* Debug */,
+				50184941070E74773356DA56 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DD5A6C776002D7C1EEC64FCE /* Build configuration list for PBXNativeTarget "PDFLaser-iPadOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				00F7978CCFD0A9D244F0F9A8 /* Debug */,
+				2C3DF3736B3864561D0E0451 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DED0287CA4CB402CBC6C34CB /* Build configuration list for PBXNativeTarget "PDFLaser-macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				530DB0678FBC469540186EFB /* Debug */,
+				C3AA1FA09D43B5AEAB1D7AAB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 145015171DBB0790A03A7E4E /* Project object */;
+}

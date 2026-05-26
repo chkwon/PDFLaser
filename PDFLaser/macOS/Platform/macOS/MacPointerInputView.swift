@@ -1,0 +1,288 @@
+import AppKit
+import SwiftUI
+
+struct MacPointerInputView: NSViewRepresentable {
+    @ObservedObject var state: PDFPresentationState
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(state: state)
+    }
+
+    func makeNSView(context: Context) -> PointerInputNSView {
+        let view = PointerInputNSView()
+        view.coordinator = context.coordinator
+        return view
+    }
+
+    func updateNSView(_ nsView: PointerInputNSView, context: Context) {
+        context.coordinator.state = state
+        nsView.coordinator = context.coordinator
+        nsView.refreshCursor()
+    }
+
+    @MainActor
+    final class Coordinator {
+        var state: PDFPresentationState
+        private var scrollAccumulator: CGFloat = 0
+        private var lastScrollNavigationTime: TimeInterval = 0
+
+        init(state: PDFPresentationState) {
+            self.state = state
+        }
+
+        func handleMove(at normalizedPoint: CGPoint) {
+            switch state.selectedTool {
+            case .laserDot:
+                state.updateLaserDot(at: normalizedPoint)
+            case .none, .laserTrail, .pen, .erase:
+                break
+            }
+        }
+
+        func beginDrag(at normalizedPoint: CGPoint) {
+            switch state.selectedTool {
+            case .pen:
+                state.beginPenStroke(at: normalizedPoint)
+            case .erase:
+                state.beginErase(at: normalizedPoint)
+            case .laserDot:
+                state.updateLaserDot(at: normalizedPoint)
+            case .laserTrail:
+                state.beginLaserTrail(at: normalizedPoint)
+            case .none:
+                break
+            }
+        }
+
+        func continueDrag(at normalizedPoint: CGPoint) {
+            switch state.selectedTool {
+            case .pen:
+                state.appendPenStroke(at: normalizedPoint)
+            case .erase:
+                state.continueErase(at: normalizedPoint)
+            case .laserDot:
+                state.updateLaserDot(at: normalizedPoint)
+            case .laserTrail:
+                state.appendLaserTrail(at: normalizedPoint)
+            case .none:
+                break
+            }
+        }
+
+        func endDrag(at normalizedPoint: CGPoint) {
+            switch state.selectedTool {
+            case .pen:
+                state.endPenStroke(at: normalizedPoint)
+            case .erase:
+                state.endErase(at: normalizedPoint)
+            case .laserTrail:
+                state.endLaserTrail(at: normalizedPoint)
+            case .laserDot:
+                state.updateLaserDot(at: normalizedPoint)
+            case .none:
+                break
+            }
+        }
+
+        func cancelInteraction() {
+            state.cancelPenStroke()
+            state.cancelErase()
+            state.cancelLaserTrail()
+        }
+
+        func handleScroll(deltaY: CGFloat, hasPreciseDeltas: Bool, timestamp: TimeInterval) {
+            guard state.pageCount > 0 else {
+                return
+            }
+
+            let cooldown: TimeInterval = 0.28
+            guard timestamp - lastScrollNavigationTime >= cooldown else {
+                return
+            }
+
+            let scaledDelta = hasPreciseDeltas ? deltaY : deltaY * 40
+            scrollAccumulator += scaledDelta
+
+            let threshold: CGFloat = 30
+            guard abs(scrollAccumulator) >= threshold else {
+                return
+            }
+
+            if scrollAccumulator < 0 {
+                state.nextPage()
+            } else {
+                state.previousPage()
+            }
+
+            scrollAccumulator = 0
+            lastScrollNavigationTime = timestamp
+        }
+    }
+}
+
+@MainActor
+final class PointerInputNSView: NSView {
+    weak var coordinator: MacPointerInputView.Coordinator?
+    private var isMouseInside = false
+
+    override var isFlipped: Bool {
+        true
+    }
+
+    override var acceptsFirstResponder: Bool {
+        true
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        window?.acceptsMouseMovedEvents = true
+    }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+
+        for trackingArea in trackingAreas {
+            removeTrackingArea(trackingArea)
+        }
+
+        addTrackingArea(
+            NSTrackingArea(
+                rect: bounds,
+                options: [.activeInKeyWindow, .mouseMoved, .mouseEnteredAndExited, .enabledDuringMouseDrag, .inVisibleRect, .cursorUpdate],
+                owner: self,
+                userInfo: nil
+            )
+        )
+    }
+
+    override func resetCursorRects() {
+        super.resetCursorRects()
+        addCursorRect(bounds, cursor: activeCursor)
+    }
+
+    override func cursorUpdate(with event: NSEvent) {
+        activeCursor.set()
+    }
+
+    func refreshCursor() {
+        window?.invalidateCursorRects(for: self)
+
+        if isMouseInside {
+            activeCursor.set()
+        }
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        isMouseInside = true
+        activeCursor.set()
+    }
+
+    override func mouseMoved(with event: NSEvent) {
+        guard let normalizedPoint = normalizedPoint(from: event) else {
+            return
+        }
+
+        coordinator?.handleMove(at: normalizedPoint)
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        window?.makeFirstResponder(self)
+
+        guard let normalizedPoint = normalizedPoint(from: event) else {
+            return
+        }
+
+        coordinator?.beginDrag(at: normalizedPoint)
+    }
+
+    override func mouseDragged(with event: NSEvent) {
+        guard let normalizedPoint = normalizedPoint(from: event) else {
+            return
+        }
+
+        coordinator?.continueDrag(at: normalizedPoint)
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        guard let normalizedPoint = normalizedPoint(from: event) else {
+            return
+        }
+
+        coordinator?.endDrag(at: normalizedPoint)
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        isMouseInside = false
+        NSCursor.arrow.set()
+        coordinator?.cancelInteraction()
+    }
+
+    override func scrollWheel(with event: NSEvent) {
+        coordinator?.handleScroll(
+            deltaY: event.scrollingDeltaY,
+            hasPreciseDeltas: event.hasPreciseScrollingDeltas,
+            timestamp: event.timestamp
+        )
+    }
+
+    private func normalizedPoint(from event: NSEvent) -> CGPoint? {
+        let localPoint = convert(event.locationInWindow, from: nil)
+        return CGPoint.normalized(from: localPoint, in: bounds.size)
+    }
+
+    private var activeCursor: NSCursor {
+        guard coordinator?.state.selectedTool == .erase else {
+            return .arrow
+        }
+
+        return .pdfLaserEraser
+    }
+}
+
+private extension NSCursor {
+    @MainActor
+    static let pdfLaserEraser: NSCursor = {
+        let size = NSSize(width: 28, height: 28)
+        let image = NSImage(size: size)
+
+        image.lockFocus()
+        defer { image.unlockFocus() }
+
+        NSColor.clear.setFill()
+        NSRect(origin: .zero, size: size).fill()
+
+        let transform = NSAffineTransform()
+        transform.translateX(by: size.width / 2, yBy: size.height / 2)
+        transform.rotate(byDegrees: -35)
+        transform.translateX(by: -size.width / 2, yBy: -size.height / 2)
+        transform.concat()
+
+        let bodyRect = NSRect(x: 5, y: 9, width: 18, height: 10)
+        let bodyPath = NSBezierPath(roundedRect: bodyRect, xRadius: 2.5, yRadius: 2.5)
+
+        NSColor.black.withAlphaComponent(0.18).setFill()
+        NSBezierPath(roundedRect: bodyRect.offsetBy(dx: 1, dy: -1), xRadius: 2.5, yRadius: 2.5).fill()
+
+        NSColor(calibratedRed: 0.98, green: 0.98, blue: 1, alpha: 1).setFill()
+        bodyPath.fill()
+
+        NSColor(calibratedRed: 0.99, green: 0.44, blue: 0.50, alpha: 1).setFill()
+        NSBezierPath(
+            roundedRect: NSRect(x: 5, y: 9, width: 7, height: 10),
+            xRadius: 2.5,
+            yRadius: 2.5
+        ).fill()
+
+        NSColor.black.withAlphaComponent(0.82).setStroke()
+        bodyPath.lineWidth = 1.4
+        bodyPath.stroke()
+
+        let seamPath = NSBezierPath()
+        seamPath.move(to: NSPoint(x: 12, y: 9.8))
+        seamPath.line(to: NSPoint(x: 12, y: 18.2))
+        seamPath.lineWidth = 1
+        seamPath.stroke()
+
+        return NSCursor(image: image, hotSpot: NSPoint(x: size.width / 2, y: size.height / 2))
+    }()
+}
