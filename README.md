@@ -43,7 +43,7 @@ Build the `PDFLaser-macOS` or `PDFLaser-iPadOS` scheme from Xcode.
 
 ## macOS Binary Release
 
-The `macos-release` GitHub Actions workflow builds the macOS app, signs it with a Developer ID Application certificate, notarizes it with Apple, staples the notarization ticket, and uploads a zip artifact named like `PDF-Laser-v0.1-macOS-universal.zip`.
+The `macos-release` GitHub Actions workflow builds the macOS app, signs it with a Developer ID Application certificate, notarizes it with Apple, staples the notarization ticket, uploads a workflow artifact, and publishes a GitHub Release asset named like `PDF-Laser-v0.1-macOS-universal.zip`.
 
 Required GitHub repository secrets:
 

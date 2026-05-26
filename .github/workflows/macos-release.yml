@@ -12,7 +12,7 @@ on:
       - "v*"
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   APP_NAME: PDF Laser
@@ -173,3 +173,20 @@ jobs:
           name: PDF-Laser-${{ steps.release.outputs.version }}-macOS-universal
           path: ${{ steps.package.outputs.zip_path }}
           if-no-files-found: error
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+          ZIP_PATH: ${{ steps.package.outputs.zip_path }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if gh release view "${VERSION}" >/dev/null 2>&1; then
+            gh release upload "${VERSION}" "${ZIP_PATH}" --clobber
+          else
+            gh release create "${VERSION}" "${ZIP_PATH}" \
+              --title "PDF Laser ${VERSION}" \
+              --notes "macOS universal app, Developer ID signed, notarized, and stapled."
+          fi
