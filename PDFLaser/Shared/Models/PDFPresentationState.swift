@@ -42,6 +42,7 @@ final class PDFPresentationState: ObservableObject {
     @Published private(set) var sourcePDFURL: URL?
     @Published private(set) var laserDotPersistsUntilCleared = false
     @Published private var markupUndoActionsByPage: [Int: [MarkupUndoAction]] = [:]
+    @Published private var markupRedoActionsByPage: [Int: [MarkupUndoAction]] = [:]
 
     var penColor: PlatformColor = .defaultPenColor
     var penWidth: CGFloat = 3
@@ -98,6 +99,28 @@ final class PDFPresentationState: ObservableObject {
         !(markupUndoActionsByPage[currentPageIndex] ?? []).isEmpty
     }
 
+    var currentPageCanRedo: Bool {
+        !(markupRedoActionsByPage[currentPageIndex] ?? []).isEmpty
+    }
+
+    init() {
+        document = Self.makeBlankPresentationDocument()
+    }
+
+    private static func makeBlankPresentationDocument() -> PDFDocument {
+        var mediaBox = CGRect(x: 0, y: 0, width: 1280, height: 720)
+        let data = NSMutableData()
+        guard let consumer = CGDataConsumer(data: data as CFMutableData),
+              let context = CGContext(consumer: consumer, mediaBox: &mediaBox, nil)
+        else {
+            return PDFDocument()
+        }
+        context.beginPDFPage(nil)
+        context.endPDFPage()
+        context.closePDF()
+        return PDFDocument(data: data as Data) ?? PDFDocument()
+    }
+
     func openPDF(url: URL) {
         do {
             document = try PDFDocumentLoader.loadPDF(from: url)
@@ -105,6 +128,7 @@ final class PDFPresentationState: ObservableObject {
             currentPageIndex = 0
             penStrokesByPage.removeAll()
             markupUndoActionsByPage.removeAll()
+            markupRedoActionsByPage.removeAll()
             activePenStroke = nil
             activeEraseSnapshot = nil
             activeErasePageIndex = nil
@@ -149,6 +173,7 @@ final class PDFPresentationState: ObservableObject {
     func clearMarkupOnCurrentPage() {
         penStrokesByPage[currentPageIndex] = []
         markupUndoActionsByPage[currentPageIndex] = []
+        markupRedoActionsByPage[currentPageIndex] = []
         activeEraseSnapshot = nil
         activeErasePageIndex = nil
     }
@@ -158,8 +183,21 @@ final class PDFPresentationState: ObservableObject {
             return
         }
 
+        let snapshotBefore = penStrokesByPage[currentPageIndex] ?? []
         markupUndoActionsByPage[currentPageIndex] = actions
         undo(action)
+        markupRedoActionsByPage[currentPageIndex, default: []].append(.restoredPageStrokes(snapshotBefore))
+    }
+
+    func redoLastUndoOnCurrentPage() {
+        guard var redoActions = markupRedoActionsByPage[currentPageIndex], let action = redoActions.popLast() else {
+            return
+        }
+
+        let snapshotBefore = penStrokesByPage[currentPageIndex] ?? []
+        markupRedoActionsByPage[currentPageIndex] = redoActions
+        undo(action)
+        pushUndoAction(.restoredPageStrokes(snapshotBefore), on: currentPageIndex, clearingRedo: false)
     }
 
     func addPenStroke(_ stroke: PenStroke) {
@@ -403,8 +441,11 @@ final class PDFPresentationState: ObservableObject {
         laserTrailFadeStartedAt = nil
     }
 
-    private func pushUndoAction(_ action: MarkupUndoAction, on pageIndex: Int) {
+    private func pushUndoAction(_ action: MarkupUndoAction, on pageIndex: Int, clearingRedo: Bool = true) {
         markupUndoActionsByPage[pageIndex, default: []].append(action)
+        if clearingRedo {
+            markupRedoActionsByPage[pageIndex] = []
+        }
     }
 
     private func undo(_ action: MarkupUndoAction) {

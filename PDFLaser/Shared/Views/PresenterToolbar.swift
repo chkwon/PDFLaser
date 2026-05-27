@@ -54,6 +54,13 @@ struct PresenterToolbar: View {
                 Label("Undo", systemImage: "arrow.uturn.backward")
             }
             .disabled(!state.currentPageCanUndo)
+            .keyboardShortcut("z", modifiers: .command)
+
+            Button(action: { state.redoLastUndoOnCurrentPage() }) {
+                Label("Redo", systemImage: "arrow.uturn.forward")
+            }
+            .disabled(!state.currentPageCanRedo)
+            .keyboardShortcut("z", modifiers: [.command, .shift])
 
             Button(action: { state.clearMarkupOnCurrentPage() }) {
                 Label("Clear", systemImage: "trash")

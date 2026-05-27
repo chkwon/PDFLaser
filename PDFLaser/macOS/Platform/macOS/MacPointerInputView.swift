@@ -232,15 +232,116 @@ final class PointerInputNSView: NSView {
     }
 
     private var activeCursor: NSCursor {
-        guard coordinator?.state.selectedTool == .erase else {
+        switch coordinator?.state.selectedTool {
+        case .erase:
+            return .pdfLaserEraser
+        case .laserDot:
+            return .pdfLaserTransparent
+        case .pen:
+            return .pdfLaserPen
+        default:
             return .arrow
         }
-
-        return .pdfLaserEraser
     }
 }
 
 private extension NSCursor {
+    @MainActor
+    static let pdfLaserTransparent: NSCursor = {
+        let image = NSImage(size: NSSize(width: 1, height: 1))
+        image.lockFocus()
+        NSColor.clear.setFill()
+        NSRect(x: 0, y: 0, width: 1, height: 1).fill()
+        image.unlockFocus()
+        return NSCursor(image: image, hotSpot: .zero)
+    }()
+
+    @MainActor
+    static let pdfLaserPen: NSCursor = {
+        let size = NSSize(width: 28, height: 28)
+        let image = NSImage(size: size)
+
+        image.lockFocus()
+        defer { image.unlockFocus() }
+
+        NSColor.clear.setFill()
+        NSRect(origin: .zero, size: size).fill()
+
+        let transform = NSAffineTransform()
+        transform.translateX(by: size.width / 2, yBy: size.height / 2)
+        transform.rotate(byDegrees: -45)
+        transform.translateX(by: -size.width / 2, yBy: -size.height / 2)
+        transform.concat()
+
+        let tipX: CGFloat = 4
+        let woodEndX: CGFloat = 9
+        let bodyEndX: CGFloat = 19
+        let metalEndX: CGFloat = 21
+        let eraserEndX: CGFloat = 25
+        let centerY: CGFloat = 14
+        let halfHeight: CGFloat = 3.2
+        let top = centerY + halfHeight
+        let bottom = centerY - halfHeight
+
+        NSColor.black.withAlphaComponent(0.18).setFill()
+        let shadow = NSBezierPath()
+        shadow.move(to: NSPoint(x: tipX + 1, y: centerY - 0.6))
+        shadow.line(to: NSPoint(x: woodEndX + 1, y: top - 1))
+        shadow.line(to: NSPoint(x: eraserEndX + 1, y: top - 1))
+        shadow.line(to: NSPoint(x: eraserEndX + 1, y: bottom - 1))
+        shadow.line(to: NSPoint(x: woodEndX + 1, y: bottom - 1))
+        shadow.close()
+        shadow.fill()
+
+        NSColor(calibratedRed: 0.96, green: 0.85, blue: 0.6, alpha: 1).setFill()
+        let wood = NSBezierPath()
+        wood.move(to: NSPoint(x: tipX, y: centerY))
+        wood.line(to: NSPoint(x: woodEndX, y: top))
+        wood.line(to: NSPoint(x: woodEndX, y: bottom))
+        wood.close()
+        wood.fill()
+
+        NSColor(calibratedRed: 0.99, green: 0.82, blue: 0.22, alpha: 1).setFill()
+        NSBezierPath(rect: NSRect(x: woodEndX, y: bottom, width: bodyEndX - woodEndX, height: top - bottom)).fill()
+
+        NSColor(calibratedRed: 0.78, green: 0.78, blue: 0.8, alpha: 1).setFill()
+        NSBezierPath(rect: NSRect(x: bodyEndX, y: bottom, width: metalEndX - bodyEndX, height: top - bottom)).fill()
+
+        NSColor(calibratedRed: 0.99, green: 0.55, blue: 0.6, alpha: 1).setFill()
+        NSBezierPath(
+            roundedRect: NSRect(x: metalEndX, y: bottom, width: eraserEndX - metalEndX, height: top - bottom),
+            xRadius: 1.2,
+            yRadius: 1.2
+        ).fill()
+
+        NSColor.black.withAlphaComponent(0.88).setFill()
+        let graphite = NSBezierPath()
+        graphite.move(to: NSPoint(x: tipX, y: centerY))
+        graphite.line(to: NSPoint(x: tipX + 2.2, y: centerY + 1.1))
+        graphite.line(to: NSPoint(x: tipX + 2.2, y: centerY - 1.1))
+        graphite.close()
+        graphite.fill()
+
+        let outline = NSBezierPath()
+        outline.move(to: NSPoint(x: tipX, y: centerY))
+        outline.line(to: NSPoint(x: woodEndX, y: top))
+        outline.line(to: NSPoint(x: eraserEndX, y: top))
+        outline.line(to: NSPoint(x: eraserEndX, y: bottom))
+        outline.line(to: NSPoint(x: woodEndX, y: bottom))
+        outline.close()
+        NSColor.black.withAlphaComponent(0.82).setStroke()
+        outline.lineWidth = 1.2
+        outline.stroke()
+
+        let divider = NSBezierPath()
+        divider.move(to: NSPoint(x: bodyEndX, y: top))
+        divider.line(to: NSPoint(x: bodyEndX, y: bottom))
+        divider.lineWidth = 0.8
+        divider.stroke()
+
+        return NSCursor(image: image, hotSpot: NSPoint(x: 7, y: 7))
+    }()
+
     @MainActor
     static let pdfLaserEraser: NSCursor = {
         let size = NSSize(width: 28, height: 28)
