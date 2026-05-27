@@ -190,3 +190,81 @@ jobs:
               --title "PDF Laser ${VERSION}" \
               --notes "macOS universal app, Developer ID signed, notarized, and stapled."
           fi
+
+      - name: Check out Homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: chkwon/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Publish Homebrew tap binary release
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          VERSION: ${{ steps.release.outputs.short_version }}
+          ZIP_PATH: ${{ steps.package.outputs.zip_path }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TAP_TAG="pdflaser-v${VERSION}"
+
+          if gh release view "${TAP_TAG}" --repo chkwon/homebrew-tap >/dev/null 2>&1; then
+            gh release upload "${TAP_TAG}" "${ZIP_PATH}" --repo chkwon/homebrew-tap --clobber
+          else
+            gh release create "${TAP_TAG}" "${ZIP_PATH}" \
+              --repo chkwon/homebrew-tap \
+              --title "PDF Laser v${VERSION}" \
+              --notes "Signed and notarized macOS universal app for Homebrew Cask installation."
+          fi
+
+      - name: Update Homebrew cask
+        env:
+          VERSION: ${{ steps.release.outputs.short_version }}
+          ZIP_PATH: ${{ steps.package.outputs.zip_path }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SHA256="$(shasum -a 256 "${ZIP_PATH}" | awk '{print $1}')"
+          CASK_PATH="homebrew-tap/Casks/pdflaser.rb"
+
+          mkdir -p "$(dirname "${CASK_PATH}")"
+          cat > "${CASK_PATH}" <<EOF
+          cask "pdflaser" do
+            version "${VERSION}"
+            sha256 "${SHA256}"
+
+            url "https://github.com/chkwon/homebrew-tap/releases/download/pdflaser-v#{version}/PDF-Laser-v#{version}-macOS-universal.zip"
+            name "PDF Laser"
+            desc "PDF slide presenter with laser pointer and pen markup"
+            homepage "https://github.com/chkwon/PDFLaser"
+
+            livecheck do
+              url "https://github.com/chkwon/homebrew-tap/releases/latest"
+              strategy :github_latest
+              regex(/pdflaser[._-]v?(\d+(?:\.\d+)+)/i)
+            end
+
+            depends_on macos: ">= :sonoma"
+
+            app "PDF Laser.app"
+
+            zap trash: [
+              "~/Library/Preferences/com.chkwon.PDFLaser.macOS.plist",
+              "~/Library/Saved Application State/com.chkwon.PDFLaser.macOS.savedState",
+            ]
+          end
+          EOF
+
+          git -C homebrew-tap config user.name "github-actions[bot]"
+          git -C homebrew-tap config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git -C homebrew-tap diff --quiet -- "${CASK_PATH#homebrew-tap/}"; then
+            echo "Homebrew cask is already up to date."
+            exit 0
+          fi
+
+          git -C homebrew-tap add "${CASK_PATH#homebrew-tap/}"
+          git -C homebrew-tap commit -m "Update PDF Laser to v${VERSION}"
+          git -C homebrew-tap push

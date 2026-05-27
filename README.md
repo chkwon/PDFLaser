@@ -41,9 +41,33 @@ open PDFLaser.xcodeproj
 
 Build the `PDFLaser-macOS` or `PDFLaser-iPadOS` scheme from Xcode.
 
+## Install With Homebrew
+
+Install the signed, notarized macOS app from the PDF Laser Homebrew tap:
+
+```sh
+brew tap chkwon/tap
+brew install pdflaser
+```
+
+Or as a one-liner without tapping first:
+
+```sh
+brew install --cask chkwon/tap/pdflaser
+```
+
+To upgrade later:
+
+```sh
+brew update
+brew upgrade pdflaser
+```
+
 ## macOS Binary Release
 
 The `macos-release` GitHub Actions workflow builds the macOS app, signs it with a Developer ID Application certificate, notarizes it with Apple, staples the notarization ticket, uploads a workflow artifact, and publishes a GitHub Release asset named like `PDF-Laser-v0.1-macOS-universal.zip`.
+
+The workflow also mirrors that zip into the public `chkwon/homebrew-tap` release assets and updates `Casks/pdflaser.rb`, so Homebrew can install the app without requiring access to this source repository.
 
 Required GitHub repository secrets:
 
@@ -53,6 +77,7 @@ Required GitHub repository secrets:
 - `ASC_KEY_ID`: App Store Connect API key ID.
 - `ASC_ISSUER_ID`: App Store Connect issuer ID.
 - `ASC_PRIVATE_KEY`: contents of the App Store Connect `AuthKey_*.p8` private key.
+- `HOMEBREW_TAP_TOKEN`: GitHub token with write access to `chkwon/homebrew-tap`, used to update `Casks/pdflaser.rb` after each release.
 
 To create the certificate secret from an exported `.p12` on macOS:
 
