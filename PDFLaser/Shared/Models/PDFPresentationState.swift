@@ -14,7 +14,7 @@ final class PDFPresentationState: ObservableObject {
             }
 
             if selectedTool != .laserDot {
-                currentLaserPoint = nil
+                clearLaserDot()
             }
 
             if selectedTool != .laserTrail {
@@ -34,11 +34,13 @@ final class PDFPresentationState: ObservableObject {
     @Published var penStrokesByPage: [Int: [PenStroke]] = [:]
     @Published var laserTrailSegments: [[LaserPoint]] = []
     @Published var currentLaserPoint: LaserPoint?
+    @Published var isLaserDotPressed = false
     @Published var isLaserTrailActive = false
     @Published var laserTrailFadeStartedAt: TimeInterval?
     @Published var activePenStroke: PenStroke?
     @Published var errorMessage: String?
     @Published private(set) var sourcePDFURL: URL?
+    @Published private(set) var laserDotPersistsUntilCleared = false
     @Published private var markupUndoActionsByPage: [Int: [MarkupUndoAction]] = [:]
 
     var penColor: PlatformColor = .defaultPenColor
@@ -280,14 +282,27 @@ final class PDFPresentationState: ObservableObject {
         return strokes.count != originalCount
     }
 
-    func updateLaserDot(at normalizedPosition: CGPoint, timestamp: TimeInterval = Date().timeIntervalSinceReferenceDate) {
+    func updateLaserDot(
+        at normalizedPosition: CGPoint,
+        isPressed: Bool = false,
+        persistsUntilCleared: Bool = true,
+        timestamp: TimeInterval = Date().timeIntervalSinceReferenceDate
+    ) {
         guard pageCount > 0 else {
             return
         }
 
         let point = LaserPoint(normalizedPosition: normalizedPosition.clampedToUnitSquare, timestamp: timestamp)
         currentLaserPoint = point
+        isLaserDotPressed = isPressed
+        laserDotPersistsUntilCleared = persistsUntilCleared
         clearLaserTrail()
+    }
+
+    func clearLaserDot() {
+        currentLaserPoint = nil
+        isLaserDotPressed = false
+        laserDotPersistsUntilCleared = false
     }
 
     func beginLaserTrail(at normalizedPosition: CGPoint, timestamp: TimeInterval = Date().timeIntervalSinceReferenceDate) {
@@ -305,7 +320,7 @@ final class PDFPresentationState: ObservableObject {
             shouldContinueExistingBucket = false
         }
 
-        currentLaserPoint = nil
+        clearLaserDot()
         isLaserTrailActive = true
         laserTrailFadeStartedAt = nil
 
@@ -360,8 +375,11 @@ final class PDFPresentationState: ObservableObject {
     }
 
     func pruneLaserPoints(now: TimeInterval = Date().timeIntervalSinceReferenceDate) {
-        if let currentLaserPoint, currentLaserPoint.age(at: now) > 0.35 {
-            self.currentLaserPoint = nil
+        if let currentLaserPoint,
+           !isLaserDotPressed,
+           !laserDotPersistsUntilCleared,
+           currentLaserPoint.age(at: now) > 0.35 {
+            clearLaserDot()
         }
 
         guard !isLaserTrailActive, let laserTrailFadeStartedAt else {
@@ -376,7 +394,7 @@ final class PDFPresentationState: ObservableObject {
 
     func clearLaser() {
         clearLaserTrail()
-        currentLaserPoint = nil
+        clearLaserDot()
     }
 
     private func clearLaserTrail() {

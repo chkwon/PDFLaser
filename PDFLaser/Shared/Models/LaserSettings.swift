@@ -13,6 +13,6 @@ struct LaserSettings {
         width: 6,
         trailDuration: 1.0,
         trailFadeDelay: 0.5,
-        dotRadius: 9
+        dotRadius: 6
     )
 }

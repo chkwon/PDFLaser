@@ -33,7 +33,7 @@ struct MacPointerInputView: NSViewRepresentable {
         func handleMove(at normalizedPoint: CGPoint) {
             switch state.selectedTool {
             case .laserDot:
-                state.updateLaserDot(at: normalizedPoint)
+                state.updateLaserDot(at: normalizedPoint, isPressed: false, persistsUntilCleared: true)
             case .none, .laserTrail, .pen, .erase:
                 break
             }
@@ -46,7 +46,7 @@ struct MacPointerInputView: NSViewRepresentable {
             case .erase:
                 state.beginErase(at: normalizedPoint)
             case .laserDot:
-                state.updateLaserDot(at: normalizedPoint)
+                state.updateLaserDot(at: normalizedPoint, isPressed: true, persistsUntilCleared: true)
             case .laserTrail:
                 state.beginLaserTrail(at: normalizedPoint)
             case .none:
@@ -61,7 +61,7 @@ struct MacPointerInputView: NSViewRepresentable {
             case .erase:
                 state.continueErase(at: normalizedPoint)
             case .laserDot:
-                state.updateLaserDot(at: normalizedPoint)
+                state.updateLaserDot(at: normalizedPoint, isPressed: true, persistsUntilCleared: true)
             case .laserTrail:
                 state.appendLaserTrail(at: normalizedPoint)
             case .none:
@@ -78,7 +78,7 @@ struct MacPointerInputView: NSViewRepresentable {
             case .laserTrail:
                 state.endLaserTrail(at: normalizedPoint)
             case .laserDot:
-                state.updateLaserDot(at: normalizedPoint)
+                state.updateLaserDot(at: normalizedPoint, isPressed: false, persistsUntilCleared: true)
             case .none:
                 break
             }
@@ -88,6 +88,7 @@ struct MacPointerInputView: NSViewRepresentable {
             state.cancelPenStroke()
             state.cancelErase()
             state.cancelLaserTrail()
+            state.clearLaserDot()
         }
 
         func handleScroll(deltaY: CGFloat, hasPreciseDeltas: Bool, timestamp: TimeInterval) {

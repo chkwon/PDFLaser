@@ -45,7 +45,7 @@ struct TouchInputView: UIViewRepresentable {
             case .erase:
                 state.beginErase(at: normalizedPoint)
             case .laserDot:
-                state.updateLaserDot(at: normalizedPoint)
+                state.updateLaserDot(at: normalizedPoint, isPressed: true, persistsUntilCleared: false)
             case .laserTrail:
                 state.beginLaserTrail(at: normalizedPoint)
             case .none:
@@ -60,7 +60,7 @@ struct TouchInputView: UIViewRepresentable {
             case .erase:
                 state.continueErase(at: normalizedPoint)
             case .laserDot:
-                state.updateLaserDot(at: normalizedPoint)
+                state.updateLaserDot(at: normalizedPoint, isPressed: true, persistsUntilCleared: false)
             case .laserTrail:
                 state.appendLaserTrail(at: normalizedPoint)
             case .none:
@@ -75,7 +75,7 @@ struct TouchInputView: UIViewRepresentable {
             case .erase:
                 state.endErase(at: normalizedPoint)
             case .laserDot:
-                state.updateLaserDot(at: normalizedPoint)
+                state.updateLaserDot(at: normalizedPoint, isPressed: false, persistsUntilCleared: false)
             case .laserTrail:
                 state.endLaserTrail(at: normalizedPoint)
             case .none:
@@ -87,6 +87,7 @@ struct TouchInputView: UIViewRepresentable {
             state.cancelPenStroke()
             state.cancelErase()
             state.cancelLaserTrail()
+            state.clearLaserDot()
         }
     }
 }

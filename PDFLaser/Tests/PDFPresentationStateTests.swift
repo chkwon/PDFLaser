@@ -171,6 +171,64 @@ final class PDFPresentationStateTests: XCTestCase {
         XCTAssertTrue(state.laserTrailSegments.isEmpty)
     }
 
+    func testLaserDotTracksPressedAndHoverState() throws {
+        let url = try makeTemporaryPDF(pageCount: 1)
+        let state = PDFPresentationState()
+        state.openPDF(url: url)
+
+        state.updateLaserDot(
+            at: CGPoint(x: 0.2, y: 0.3),
+            isPressed: false,
+            persistsUntilCleared: true,
+            timestamp: 100
+        )
+
+        XCTAssertNotNil(state.currentLaserPoint)
+        XCTAssertFalse(state.isLaserDotPressed)
+
+        state.pruneLaserPoints(now: 101)
+
+        XCTAssertNotNil(state.currentLaserPoint)
+
+        state.updateLaserDot(
+            at: CGPoint(x: 0.4, y: 0.5),
+            isPressed: true,
+            persistsUntilCleared: true,
+            timestamp: 102
+        )
+
+        XCTAssertTrue(state.isLaserDotPressed)
+
+        state.clearLaserDot()
+
+        XCTAssertNil(state.currentLaserPoint)
+        XCTAssertFalse(state.isLaserDotPressed)
+    }
+
+    func testTransientLaserDotFadesAfterRelease() throws {
+        let url = try makeTemporaryPDF(pageCount: 1)
+        let state = PDFPresentationState()
+        state.openPDF(url: url)
+
+        state.updateLaserDot(
+            at: CGPoint(x: 0.2, y: 0.3),
+            isPressed: true,
+            persistsUntilCleared: false,
+            timestamp: 100
+        )
+        state.updateLaserDot(
+            at: CGPoint(x: 0.2, y: 0.3),
+            isPressed: false,
+            persistsUntilCleared: false,
+            timestamp: 100.1
+        )
+
+        state.pruneLaserPoints(now: 100.5)
+
+        XCTAssertNil(state.currentLaserPoint)
+        XCTAssertFalse(state.isLaserDotPressed)
+    }
+
     func testEraseRemovesWholeStrokeAtPoint() throws {
         let url = try makeTemporaryPDF(pageCount: 1)
         let state = PDFPresentationState()

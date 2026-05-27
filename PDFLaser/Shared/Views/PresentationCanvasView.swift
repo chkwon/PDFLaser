@@ -98,17 +98,13 @@ struct PresentationCanvasView: View {
     ) {
         if points.count == 1 {
             let center = points[0].normalizedPosition.denormalized(in: size)
-            let radius = state.laserSettings.width / 2
-            let dotRect = CGRect(
-                x: center.x - radius,
-                y: center.y - radius,
-                width: radius * 2,
-                height: radius * 2
+            drawHighlightedLaserDot(
+                center: center,
+                radius: max(state.laserSettings.width, 5),
+                color: color,
+                opacity: opacity,
+                in: &context
             )
-
-            var glowContext = context
-            glowContext.addFilter(.shadow(color: color.opacity(opacity * 0.7), radius: state.laserSettings.width * 1.4))
-            glowContext.fill(Path(ellipseIn: dotRect), with: .color(color.opacity(opacity)))
             return
         }
 
@@ -117,17 +113,46 @@ struct PresentationCanvasView: View {
             in: size
         )
 
-        var glowContext = context
-        glowContext.addFilter(.shadow(color: color.opacity(opacity * 0.7), radius: state.laserSettings.width * 1.4))
-        glowContext.stroke(
+        drawGoodNotesLaserPath(
+            path,
+            color: color,
+            baseWidth: state.laserSettings.width,
+            opacity: opacity,
+            in: &context
+        )
+    }
+
+    private func drawGoodNotesLaserPath(
+        _ path: Path,
+        color: Color,
+        baseWidth: CGFloat,
+        opacity: Double,
+        in context: inout GraphicsContext
+    ) {
+        let width = max(baseWidth, 1)
+
+        var haloContext = context
+        haloContext.addFilter(.blur(radius: width * 0.9))
+        haloContext.stroke(
+            path,
+            with: .color(color.opacity(opacity * 0.24)),
+            style: laserStrokeStyle(width: width * 2.7)
+        )
+
+        context.stroke(
             path,
             with: .color(color.opacity(opacity)),
-            style: StrokeStyle(
-                lineWidth: state.laserSettings.width,
-                lineCap: .round,
-                lineJoin: .round
-            )
+            style: laserStrokeStyle(width: width)
         )
+        context.stroke(
+            path,
+            with: .color(.white.opacity(opacity * 0.94)),
+            style: laserStrokeStyle(width: max(width * 0.30, 1.5))
+        )
+    }
+
+    private func laserStrokeStyle(width: CGFloat) -> StrokeStyle {
+        StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round)
     }
 
     private func drawLaserDot(in context: inout GraphicsContext, size: CGSize, now: TimeInterval) {
@@ -136,23 +161,71 @@ struct PresentationCanvasView: View {
         }
 
         let age = point.age(at: now)
-        guard age <= 0.35 else {
+        let shouldFade = !state.isLaserDotPressed && !state.laserDotPersistsUntilCleared
+        guard !shouldFade || age <= 0.35 else {
             return
         }
 
         let center = point.normalizedPosition.denormalized(in: size)
-        let radius = state.laserSettings.dotRadius
-        let dotRect = CGRect(
+        let color = Color(platformColor: state.laserSettings.color)
+
+        if state.isLaserDotPressed {
+            drawHighlightedLaserDot(
+                center: center,
+                radius: state.laserSettings.dotRadius,
+                color: color,
+                opacity: 1,
+                in: &context
+            )
+        } else {
+            let radius = max(state.laserSettings.dotRadius * 0.42, 3)
+            context.fill(
+                Path(ellipseIn: circleRect(center: center, radius: radius)),
+                with: .color(color)
+            )
+        }
+    }
+
+    private func drawHighlightedLaserDot(
+        center: CGPoint,
+        radius: CGFloat,
+        color: Color,
+        opacity: Double,
+        in context: inout GraphicsContext
+    ) {
+        let coreRadius = max(radius, 4)
+        let haloRadius = coreRadius * 1.75
+
+        context.fill(
+            Path(ellipseIn: circleRect(center: center, radius: haloRadius)),
+            with: .radialGradient(
+                Gradient(stops: [
+                    .init(color: color.opacity(opacity * 0.24), location: 0),
+                    .init(color: .white.opacity(opacity * 0.12), location: 0.72),
+                    .init(color: .white.opacity(0), location: 1)
+                ]),
+                center: center,
+                startRadius: coreRadius,
+                endRadius: haloRadius
+            )
+        )
+        context.fill(
+            Path(ellipseIn: circleRect(center: center, radius: coreRadius)),
+            with: .color(color.opacity(opacity))
+        )
+        context.fill(
+            Path(ellipseIn: circleRect(center: center, radius: coreRadius * 0.36)),
+            with: .color(.white.opacity(opacity * 0.96))
+        )
+    }
+
+    private func circleRect(center: CGPoint, radius: CGFloat) -> CGRect {
+        CGRect(
             x: center.x - radius,
             y: center.y - radius,
             width: radius * 2,
             height: radius * 2
         )
-
-        let color = Color(platformColor: state.laserSettings.color)
-        var glowContext = context
-        glowContext.addFilter(.shadow(color: color.opacity(0.9), radius: radius * 1.8))
-        glowContext.fill(Path(ellipseIn: dotRect), with: .color(color))
     }
 
     private func drawStroke(
