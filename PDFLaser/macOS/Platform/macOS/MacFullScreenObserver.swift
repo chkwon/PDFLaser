@@ -44,7 +44,9 @@ final class FullScreenObserverNSView: NSView {
             object: window,
             queue: .main
         ) { [weak self] _ in
-            self?.onChange?(true)
+            MainActor.assumeIsolated {
+                self?.onChange?(true)
+            }
         }
 
         exitToken = NotificationCenter.default.addObserver(
@@ -52,7 +54,9 @@ final class FullScreenObserverNSView: NSView {
             object: window,
             queue: .main
         ) { [weak self] _ in
-            self?.onChange?(false)
+            MainActor.assumeIsolated {
+                self?.onChange?(false)
+            }
         }
     }
 
