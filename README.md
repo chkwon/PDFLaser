@@ -2,6 +2,32 @@
 
 PDF Laser is a universal SwiftUI app for presenting PDF slide decks with a temporary laser pointer and simple in-session pen markup.
 
+<p align="center">
+  <img src="PDFLaser/Shared/Assets.xcassets/AppIcon.appiconset/AppIcon-256.png" alt="PDF Laser app icon" width="128">
+</p>
+
+## Install With Homebrew
+
+Install the signed, notarized macOS app from the PDF Laser Homebrew tap:
+
+```sh
+brew tap chkwon/tap
+brew install pdflaser
+```
+
+Or as a one-liner without tapping first:
+
+```sh
+brew install --cask chkwon/tap/pdflaser
+```
+
+To upgrade later:
+
+```sh
+brew update
+brew upgrade pdflaser
+```
+
 ## What It Does
 
 - Opens a user-selected PDF.
@@ -40,28 +66,6 @@ open PDFLaser.xcodeproj
 ```
 
 Build the `PDFLaser-macOS` or `PDFLaser-iPadOS` scheme from Xcode.
-
-## Install With Homebrew
-
-Install the signed, notarized macOS app from the PDF Laser Homebrew tap:
-
-```sh
-brew tap chkwon/tap
-brew install pdflaser
-```
-
-Or as a one-liner without tapping first:
-
-```sh
-brew install --cask chkwon/tap/pdflaser
-```
-
-To upgrade later:
-
-```sh
-brew update
-brew upgrade pdflaser
-```
 
 ## macOS Binary Release
 
