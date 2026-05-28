@@ -40,7 +40,6 @@
 		C4287750B705834B14B04AB4 /* LaserPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFC694BCF3F5BF2F314379F /* LaserPoint.swift */; };
 		C5F334702B8741F65E21CAD8 /* PDFDocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4099C4EFB974B3874394E4FC /* PDFDocumentLoader.swift */; };
 		C61D973F8319E588CDA4CA35 /* PDFSlideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DF83F456AA51F47A0E4CE /* PDFSlideView.swift */; };
-		C6390A348372E8B94C376403 /* MacKeyboardHandlingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE7308E931FA8F522097673A /* MacKeyboardHandlingView.swift */; };
 		CC9430197CAA1C6886074FA0 /* MacFullScreenObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79AFDF2DD98D017284E27632 /* MacFullScreenObserver.swift */; };
 		D63E778F22049A239A99E56F /* GeometryNormalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037ECFDF6242ABB8502E5DA9 /* GeometryNormalization.swift */; };
 		D70D8573571C1B3EB4E8155A /* LaserPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFC694BCF3F5BF2F314379F /* LaserPoint.swift */; };
@@ -92,7 +91,6 @@
 		CF046AAE418D89D559EF1A04 /* PDFTabsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFTabsModel.swift; sourceTree = "<group>"; };
 		DBD394456B4447FFE68317BF /* PDFPresentationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPresentationState.swift; sourceTree = "<group>"; };
 		DC74DE3667C044A863D9901B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		DE7308E931FA8F522097673A /* MacKeyboardHandlingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacKeyboardHandlingView.swift; sourceTree = "<group>"; };
 		DEA2704A79D8F0010F9F7B9A /* PDFLaserTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PDFLaserTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E61A6C9777885CE2823B98A4 /* MacPDFViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacPDFViewRepresentable.swift; sourceTree = "<group>"; };
 		E6BC943281E5AA0C8414A22C /* IOSPDFViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOSPDFViewRepresentable.swift; sourceTree = "<group>"; };
@@ -192,7 +190,6 @@
 			isa = PBXGroup;
 			children = (
 				79AFDF2DD98D017284E27632 /* MacFullScreenObserver.swift */,
-				DE7308E931FA8F522097673A /* MacKeyboardHandlingView.swift */,
 				A57AFD58703A5B9F990DF54D /* MacMouseActivityView.swift */,
 				E61A6C9777885CE2823B98A4 /* MacPDFViewRepresentable.swift */,
 				347E8814DAF6EA5469254DE3 /* MacPointerInputView.swift */,
@@ -369,7 +366,6 @@
 				C4287750B705834B14B04AB4 /* LaserPoint.swift in Sources */,
 				A756150AA392498A0E607D1E /* LaserSettings.swift in Sources */,
 				CC9430197CAA1C6886074FA0 /* MacFullScreenObserver.swift in Sources */,
-				C6390A348372E8B94C376403 /* MacKeyboardHandlingView.swift in Sources */,
 				40579FF198D9D3A2836A2CE9 /* MacMouseActivityView.swift in Sources */,
 				86172C0C8CA4D3F65F3505DC /* MacPDFViewRepresentable.swift in Sources */,
 				FCBB646E0448887940453822 /* MacPointerInputView.swift in Sources */,

@@ -155,13 +155,6 @@ struct ContentView: View {
             }
         }
         .background(
-            MacKeyboardHandlingView(
-                onNext: { state.nextPage() },
-                onPrevious: { state.previousPage() }
-            )
-            .frame(width: 0, height: 0)
-        )
-        .background(
             MacFullScreenObserver(onChange: handleFullScreenChange)
                 .frame(width: 0, height: 0)
         )

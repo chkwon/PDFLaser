@@ -226,6 +226,24 @@ final class PointerInputNSView: NSView {
         )
     }
 
+    override func keyDown(with event: NSEvent) {
+        guard let state = coordinator?.state else {
+            super.keyDown(with: event)
+            return
+        }
+
+        switch event.keyCode {
+        case 49 where event.modifierFlags.contains(.shift):
+            state.previousPage()
+        case 124, 125, 49, 36, 76, 121:
+            state.nextPage()
+        case 123, 126, 51, 116:
+            state.previousPage()
+        default:
+            super.keyDown(with: event)
+        }
+    }
+
     private func normalizedPoint(from event: NSEvent) -> CGPoint? {
         let localPoint = convert(event.locationInWindow, from: nil)
         return CGPoint.normalized(from: localPoint, in: bounds.size)
