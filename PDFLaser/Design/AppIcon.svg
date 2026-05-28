@@ -1,75 +1,39 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-  <rect width="1024" height="1024" fill="#FBFDFF"/>
-  <rect x="58" y="46" width="908" height="920" rx="176" fill="#EEF6FF"/>
-  <rect x="82" y="70" width="860" height="872" rx="152" fill="#FAFCFF" opacity="0.82"/>
-  <path d="M84 668C199 617 348 630 491 700C635 771 763 758 925 651V808C925 886 866 944 789 944H235C144 944 82 881 82 792Z" fill="#DCEBFF" opacity="0.58"/>
-  <circle cx="821" cy="192" r="205" fill="#DBEAFF" opacity="0.58"/>
-  <path d="M96 784C119 890 181 936 278 941H795C862 934 913 890 931 815L956 843C940 914 881 967 808 973H214C138 966 80 908 62 834Z" fill="#CBD9ED" opacity="0.46"/>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FBFDFF"/>
+      <stop offset="1" stop-color="#F3F8FD"/>
+    </linearGradient>
+    <linearGradient id="laser" x1="-58" y1="1012" x2="803" y2="455" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF9C96" stop-opacity="0.08"/>
+      <stop offset="0.28" stop-color="#FF6259" stop-opacity="0.58"/>
+      <stop offset="0.72" stop-color="#FF251E"/>
+      <stop offset="1" stop-color="#F60000"/>
+    </linearGradient>
+    <filter id="laserGlow" x="-130" y="330" width="1040" height="790" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="15"/>
+    </filter>
+  </defs>
 
-  <path d="M253 161H611L793 343V784C793 837 749 879 695 879H294C239 879 198 834 198 779V225C198 188 218 164 253 161Z" fill="#8EA0B8" opacity="0.22"/>
-  <path d="M227 187H625L796 358V781C796 811 783 837 760 854C802 839 825 801 825 753V331L623 129H282C226 131 181 176 181 232V753C181 773 186 793 196 810C187 706 187 467 190 239C190 213 205 193 227 187Z" fill="#FFFFFF" opacity="0.46"/>
+  <rect width="1024" height="1024" fill="url(#background)"/>
 
-  <g>
-    <path d="M282 129H623L825 331V753C825 810 779 856 722 856H284C227 856 181 810 181 753V232C181 176 226 131 282 129Z" fill="#FFFFFF"/>
-    <path d="M203 761C225 803 263 827 311 827H703C759 827 798 799 821 762C815 815 773 856 721 856H286C232 856 187 814 181 759L181 728C187 741 195 752 203 761Z" fill="#E3EAF4"/>
-    <path d="M623 129V250C623 294 659 331 704 331H825L623 129Z" fill="#F7FAFE"/>
-    <path d="M623 129V250C623 294 659 331 704 331H825L802 308H710C676 308 650 282 650 249V156Z" fill="#AEBACC" opacity="0.3"/>
-    <path d="M653 158L825 331H704C660 331 623 294 623 250V129Z" fill="#FFFFFF" opacity="0.48"/>
-  </g>
+  <path d="M0 686C111 574 242 576 382 669C520 761 641 798 777 704C844 657 904 650 994 699C1005 705 1015 710 1024 714V1024H0Z" fill="#D4E7F7"/>
 
-  <g>
-    <rect x="238" y="280" width="188" height="166" rx="22" fill="#3D84DF"/>
-    <rect x="251" y="293" width="162" height="140" rx="16" fill="#FFFFFF" opacity="0.18"/>
-    <circle cx="377" cy="340" r="20" fill="#F8FBFF" opacity="0.96"/>
-    <path d="M260 408L315 342L352 392L376 365L414 416C405 421 393 424 380 424H276C268 424 262 418 260 408Z" fill="#EAF4FF" opacity="0.86"/>
-  </g>
+  <rect x="138" y="210" width="330" height="44" rx="22" fill="#516174"/>
+  <rect x="138" y="320" width="238" height="32" rx="16" fill="#A9B8C8"/>
+  <rect x="138" y="408" width="192" height="32" rx="16" fill="#BBC7D5"/>
 
-  <g opacity="0.96">
-    <rect x="238" y="474" width="188" height="150" rx="20" fill="#E7EDF6"/>
-    <circle cx="280" cy="520" r="10" fill="#A1ADC0"/>
-    <rect x="304" y="512" width="96" height="14" rx="7" fill="#A9B4C6"/>
-    <circle cx="280" cy="555" r="10" fill="#A1ADC0"/>
-    <rect x="304" y="547" width="78" height="14" rx="7" fill="#B4BDCE"/>
-    <circle cx="280" cy="590" r="10" fill="#A1ADC0"/>
-    <rect x="304" y="582" width="68" height="14" rx="7" fill="#B4BDCE"/>
-  </g>
+  <circle cx="803" cy="279" r="80" fill="#BBD7F1" opacity="0.92"/>
 
-  <g opacity="0.95">
-    <rect x="238" y="652" width="188" height="136" rx="20" fill="#E7EDF6"/>
-    <rect x="280" y="734" width="25" height="39" rx="5" fill="#8B9AAF"/>
-    <rect x="321" y="710" width="28" height="63" rx="5" fill="#8B9AAF"/>
-    <rect x="366" y="688" width="28" height="85" rx="5" fill="#8B9AAF"/>
-  </g>
+  <path d="M-52 1033C216 918 421 789 590 638C680 558 739 515 803 455" fill="none" stroke="#FF3B30" stroke-width="74" stroke-linecap="round" stroke-linejoin="round" opacity="0.14" filter="url(#laserGlow)"/>
+  <path d="M-51 1033C218 918 421 789 590 638C680 558 739 515 803 455" fill="none" stroke="url(#laser)" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M-23 1021C233 912 427 786 591 641C680 562 740 516 803 455" fill="none" stroke="#FFFCF8" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
 
-  <rect x="498" y="354" width="327" height="33" rx="12" fill="#556277"/>
-  <rect x="498" y="436" width="290" height="24" rx="12" fill="#C5CEDB"/>
-  <rect x="498" y="494" width="235" height="24" rx="12" fill="#CAD2DE"/>
-  <circle cx="604" cy="664" r="86" fill="#C6D0DD" opacity="0.62"/>
-  <path d="M610 578C658 582 694 618 698 666H610Z" fill="#9FAABC" opacity="0.76"/>
-  <path d="M622 681H704C697 713 675 738 646 750Z" fill="#E15F5F" opacity="0.7"/>
+  <circle cx="803" cy="455" r="141" fill="#FF3B30" opacity="0.13"/>
+  <circle cx="803" cy="455" r="84" fill="#FF2D25"/>
+  <circle cx="803" cy="455" r="50" fill="#FF6D64" opacity="0.82"/>
+  <circle cx="790" cy="442" r="21" fill="#FFF7F2"/>
+  <circle cx="790" cy="442" r="40" fill="#FFFFFF" opacity="0.16"/>
 
-  <path d="M111 816C259 765 434 697 577 589C646 537 699 494 757 452L790 488C721 562 652 626 564 683C428 771 265 823 112 854Z" fill="#FF3B30" opacity="0.13"/>
-  <path d="M116 820C278 761 426 699 560 599C640 539 697 494 757 452L772 472C710 532 647 593 563 652C429 747 270 807 118 841Z" fill="#FF5D52" opacity="0.32"/>
-  <path d="M134 824C292 765 431 704 562 606C642 546 700 496 758 454L766 464C702 527 641 587 558 644C427 736 277 797 134 830Z" fill="#FF3028"/>
-  <path d="M145 822C295 764 430 705 558 609C637 550 698 497 757 455L761 461C700 520 640 580 558 638C430 730 282 791 144 826Z" fill="#FFFFFF" opacity="0.92"/>
-  <circle cx="766" cy="454" r="118" fill="#FF3B30" opacity="0.13"/>
-  <circle cx="766" cy="454" r="66" fill="#FF3B30"/>
-  <circle cx="766" cy="454" r="37" fill="#FF5A52" opacity="0.7"/>
-  <circle cx="756" cy="444" r="16" fill="#FFF9F7"/>
-  <circle cx="756" cy="444" r="31" fill="#FFFFFF" opacity="0.18"/>
-
-  <path d="M828 767L908 720L1024 916L946 964Z" fill="#93A2B5" opacity="0.2"/>
-  <g>
-    <path d="M807 755L889 707L1011 914L929 963Z" fill="#A9B4C3" opacity="0.38"/>
-    <path d="M802 751L887 701L1009 909L924 960Z" fill="#DDE6F2"/>
-    <path d="M854 720L887 701L1009 909L975 930L856 725Z" fill="#F8FBFF" opacity="0.72"/>
-    <path d="M827 797L911 748L927 775L843 824Z" fill="#FF3B30"/>
-    <path d="M843 824L927 775L935 789L851 838Z" fill="#911313" opacity="0.45"/>
-    <ellipse cx="844" cy="726" rx="67" ry="32" fill="#F4F7FB"/>
-    <ellipse cx="844" cy="726" rx="50" ry="21" fill="#BDC8D6"/>
-    <ellipse cx="830" cy="721" rx="32" ry="12" fill="#FFFFFF" opacity="0.48"/>
-    <circle cx="934" cy="878" r="30" fill="#B2BECF"/>
-    <circle cx="934" cy="878" r="21" fill="#F9FCFF"/>
-  </g>
-
+  <text x="780" y="912" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Arial, sans-serif" font-size="116" font-weight="800" letter-spacing="0" fill="#516174">PDF</text>
 </svg>
