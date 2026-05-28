@@ -12,6 +12,7 @@
 		13F0A51B199BB43E2D2853AD /* PDFPresentationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD394456B4447FFE68317BF /* PDFPresentationState.swift */; };
 		1DDFAED4A67BAC811E491C17 /* PresentationTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B0220E00BA53D30C0F140E9 /* PresentationTool.swift */; };
 		2D027E7F46AE70EAACC5069B /* PDFPresentationStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD3513815FF5073E7A2D3C7 /* PDFPresentationStateTests.swift */; };
+		40579FF198D9D3A2836A2CE9 /* MacMouseActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A57AFD58703A5B9F990DF54D /* MacMouseActivityView.swift */; };
 		435BEB25F573BE39EC129D17 /* PresentationCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EF8BA6E55DFDCE6159508AD /* PresentationCanvasView.swift */; };
 		49ED04B5445603A498B62E58 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0576FA9085B09153D41C5E6F /* Assets.xcassets */; };
 		4F36CB6B0F2AA647BE88E7F6 /* PresenterToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 734CBE59C670FEEBFC7BC54F /* PresenterToolbar.swift */; };
@@ -36,6 +37,7 @@
 		C5F334702B8741F65E21CAD8 /* PDFDocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4099C4EFB974B3874394E4FC /* PDFDocumentLoader.swift */; };
 		C61D973F8319E588CDA4CA35 /* PDFSlideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56DF83F456AA51F47A0E4CE /* PDFSlideView.swift */; };
 		C6390A348372E8B94C376403 /* MacKeyboardHandlingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE7308E931FA8F522097673A /* MacKeyboardHandlingView.swift */; };
+		CC9430197CAA1C6886074FA0 /* MacFullScreenObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79AFDF2DD98D017284E27632 /* MacFullScreenObserver.swift */; };
 		D63E778F22049A239A99E56F /* GeometryNormalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037ECFDF6242ABB8502E5DA9 /* GeometryNormalization.swift */; };
 		D70D8573571C1B3EB4E8155A /* LaserPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCFC694BCF3F5BF2F314379F /* LaserPoint.swift */; };
 		DB910C310D2DB1872135B193 /* PDFDocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4099C4EFB974B3874394E4FC /* PDFDocumentLoader.swift */; };
@@ -70,8 +72,10 @@
 		584E3148BC600A75919F5BD7 /* PDFLaser-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PDFLaser-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EF8BA6E55DFDCE6159508AD /* PresentationCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentationCanvasView.swift; sourceTree = "<group>"; };
 		734CBE59C670FEEBFC7BC54F /* PresenterToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenterToolbar.swift; sourceTree = "<group>"; };
+		79AFDF2DD98D017284E27632 /* MacFullScreenObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacFullScreenObserver.swift; sourceTree = "<group>"; };
 		8B0220E00BA53D30C0F140E9 /* PresentationTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentationTool.swift; sourceTree = "<group>"; };
 		998E92F34D54648000ACE90E /* TouchInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TouchInputView.swift; sourceTree = "<group>"; };
+		A57AFD58703A5B9F990DF54D /* MacMouseActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacMouseActivityView.swift; sourceTree = "<group>"; };
 		A7D33463E781E970B0FF3DE1 /* PDFLaserApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFLaserApp.swift; sourceTree = "<group>"; };
 		A8B4A22C8E4A0FB45BC73CCB /* PDFMarkupExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFMarkupExporter.swift; sourceTree = "<group>"; };
 		A94ED15EAB1B665CC5015481 /* PDFLaser-iPadOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "PDFLaser-iPadOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -178,7 +182,9 @@
 		60B9B66BD812CB3D0B38406A /* macOS */ = {
 			isa = PBXGroup;
 			children = (
+				79AFDF2DD98D017284E27632 /* MacFullScreenObserver.swift */,
 				DE7308E931FA8F522097673A /* MacKeyboardHandlingView.swift */,
+				A57AFD58703A5B9F990DF54D /* MacMouseActivityView.swift */,
 				E61A6C9777885CE2823B98A4 /* MacPDFViewRepresentable.swift */,
 				347E8814DAF6EA5469254DE3 /* MacPointerInputView.swift */,
 			);
@@ -352,7 +358,9 @@
 				E769CD5D29812FADAFC398E6 /* GeometryNormalization.swift in Sources */,
 				C4287750B705834B14B04AB4 /* LaserPoint.swift in Sources */,
 				A756150AA392498A0E607D1E /* LaserSettings.swift in Sources */,
+				CC9430197CAA1C6886074FA0 /* MacFullScreenObserver.swift in Sources */,
 				C6390A348372E8B94C376403 /* MacKeyboardHandlingView.swift in Sources */,
+				40579FF198D9D3A2836A2CE9 /* MacMouseActivityView.swift in Sources */,
 				86172C0C8CA4D3F65F3505DC /* MacPDFViewRepresentable.swift in Sources */,
 				FCBB646E0448887940453822 /* MacPointerInputView.swift in Sources */,
 				C5F334702B8741F65E21CAD8 /* PDFDocumentLoader.swift in Sources */,

@@ -1,9 +1,19 @@
 import SwiftUI
 
+#if os(macOS)
+import AppKit
+#endif
+
 struct PresenterToolbar: View {
     @ObservedObject var state: PDFPresentationState
     var openAction: () -> Void
     var saveAction: () -> Void
+    #if os(macOS)
+    var isFullScreen: Bool = false
+    var toggleFullScreenAction: () -> Void = {
+        NSApp.sendAction(#selector(NSWindow.toggleFullScreen(_:)), to: nil, from: nil)
+    }
+    #endif
 
     var body: some View {
         HStack(spacing: 10) {
@@ -66,6 +76,21 @@ struct PresenterToolbar: View {
                 Label("Clear", systemImage: "trash")
             }
             .disabled(!state.currentPageHasMarkup)
+
+            #if os(macOS)
+            Divider()
+                .frame(height: 22)
+
+            Button(action: toggleFullScreenAction) {
+                Label(
+                    isFullScreen ? "Exit Full Screen" : "Enter Full Screen",
+                    systemImage: isFullScreen
+                        ? "arrow.down.right.and.arrow.up.left"
+                        : "arrow.up.left.and.arrow.down.right"
+                )
+            }
+            .labelStyle(.iconOnly)
+            #endif
         }
         .buttonStyle(.bordered)
         .controlSize(.regular)
