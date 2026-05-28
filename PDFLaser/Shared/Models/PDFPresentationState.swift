@@ -4,7 +4,9 @@ import Foundation
 import PDFKit
 
 @MainActor
-final class PDFPresentationState: ObservableObject {
+final class PDFPresentationState: ObservableObject, Identifiable {
+    let id = UUID()
+
     @Published var document: PDFDocument?
     @Published var currentPageIndex: Int = 0
     @Published var selectedTool: PresentationTool = .none {
