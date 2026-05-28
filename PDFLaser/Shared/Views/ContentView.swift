@@ -2,11 +2,15 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @StateObject private var state = PDFPresentationState()
+    @StateObject private var tabsModel = PDFTabsModel()
     @State private var isImporterPresented = false
     @State private var isExporterPresented = false
     @State private var exportDocument = ExportedPDFDocument()
     @State private var alertTitle = "PDF Laser"
+
+    private var state: PDFPresentationState {
+        tabsModel.activeTab
+    }
 
     #if os(macOS)
     @State private var isFullScreen = false
@@ -20,6 +24,7 @@ struct ContentView: View {
 
     var body: some View {
         platformContent
+            .focusedSceneObject(tabsModel)
             .fileImporter(
                 isPresented: $isImporterPresented,
                 allowedContentTypes: [.pdf],
@@ -31,7 +36,7 @@ struct ContentView: View {
                         return
                     }
 
-                    state.openPDF(url: url)
+                    tabsModel.openPDF(url: url)
                 case .failure(let error):
                     alertTitle = "Could not open PDF"
                     state.errorMessage = error.localizedDescription
@@ -105,6 +110,7 @@ struct ContentView: View {
 
     private var stackedContent: some View {
         VStack(spacing: 0) {
+            PDFTabBarView(tabsModel: tabsModel)
             presenterToolbar
             PDFSlideView(state: state)
         }
@@ -121,19 +127,22 @@ struct ContentView: View {
                     MacMouseActivityView(onMove: handleMouseMove)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                    presenterToolbar
-                        .background(
-                            GeometryReader { proxy in
-                                Color.clear.preference(
-                                    key: ToolbarHeightPreferenceKey.self,
-                                    value: proxy.size.height
-                                )
-                            }
-                        )
-                        .offset(y: isToolbarVisible ? 0 : -toolbarHeight)
-                        .opacity(isToolbarVisible ? 1 : 0)
-                        .animation(.easeInOut(duration: 0.2), value: isToolbarVisible)
-                        .onHover(perform: handleToolbarHover)
+                    VStack(spacing: 0) {
+                        PDFTabBarView(tabsModel: tabsModel)
+                        presenterToolbar
+                    }
+                    .background(
+                        GeometryReader { proxy in
+                            Color.clear.preference(
+                                key: ToolbarHeightPreferenceKey.self,
+                                value: proxy.size.height
+                            )
+                        }
+                    )
+                    .offset(y: isToolbarVisible ? 0 : -toolbarHeight)
+                    .opacity(isToolbarVisible ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.2), value: isToolbarVisible)
+                    .onHover(perform: handleToolbarHover)
                 }
                 .onPreferenceChange(ToolbarHeightPreferenceKey.self) { value in
                     toolbarHeight = value
