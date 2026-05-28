@@ -25,6 +25,9 @@ struct ContentView: View {
     var body: some View {
         platformContent
             .focusedSceneObject(tabsModel)
+            .onOpenURL { url in
+                tabsModel.openPDF(url: url)
+            }
             .fileImporter(
                 isPresented: $isImporterPresented,
                 allowedContentTypes: [.pdf],

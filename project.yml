@@ -16,13 +16,26 @@ targets:
     sources:
       - path: PDFLaser/Shared
       - path: PDFLaser/macOS
+    info:
+      path: PDFLaser/macOS/Info.plist
+      properties:
+        CFBundleDisplayName: PDF Laser
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSApplicationCategoryType: public.app-category.productivity
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSPrincipalClass: NSApplication
+        NSHighResolutionCapable: true
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: PDF Document
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - com.adobe.pdf
     settings:
       base:
         PRODUCT_NAME: PDF Laser
         PRODUCT_BUNDLE_IDENTIFIER: com.chkwon.PDFLaser.macOS
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_CFBundleDisplayName: PDF Laser
-        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
         CODE_SIGN_ENTITLEMENTS: PDFLaser/macOS/PDFLaser-macOS.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ENABLE_HARDENED_RUNTIME: YES

@@ -91,6 +91,7 @@
 		C56DF83F456AA51F47A0E4CE /* PDFSlideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFSlideView.swift; sourceTree = "<group>"; };
 		CF046AAE418D89D559EF1A04 /* PDFTabsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFTabsModel.swift; sourceTree = "<group>"; };
 		DBD394456B4447FFE68317BF /* PDFPresentationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFPresentationState.swift; sourceTree = "<group>"; };
+		DC74DE3667C044A863D9901B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DE7308E931FA8F522097673A /* MacKeyboardHandlingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacKeyboardHandlingView.swift; sourceTree = "<group>"; };
 		DEA2704A79D8F0010F9F7B9A /* PDFLaserTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PDFLaserTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E61A6C9777885CE2823B98A4 /* MacPDFViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacPDFViewRepresentable.swift; sourceTree = "<group>"; };
@@ -218,6 +219,7 @@
 		9D749C12EEB8FF7D859F729F /* macOS */ = {
 			isa = PBXGroup;
 			children = (
+				DC74DE3667C044A863D9901B /* Info.plist */,
 				226FBBAF24B3AEC6E95910ED /* PDFLaser-macOS.entitlements */,
 				849D30D8E766DAAF600BEAD8 /* Platform */,
 			);
@@ -609,9 +611,7 @@
 				CODE_SIGN_ENTITLEMENTS = "PDFLaser/macOS/PDFLaser-macOS.entitlements";
 				COMBINE_HIDPI_IMAGES = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "PDF Laser";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_FILE = PDFLaser/macOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -653,9 +653,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 6CM5MD58K2;
 				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "PDF Laser";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_FILE = PDFLaser/macOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
