@@ -6,7 +6,7 @@ on:
       version:
         description: Release version tag
         required: true
-        default: v0.1
+        default: v0.1.0
   push:
     tags:
       - "v*"
@@ -41,8 +41,8 @@ jobs:
             VERSION="${GITHUB_REF_NAME}"
           fi
 
-          if [[ ! "${VERSION}" =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
-            echo "Release version must look like v0.1, got: ${VERSION}" >&2
+          if [[ ! "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release version must look like v1.2.3, got: ${VERSION}" >&2
             exit 1
           fi
 
@@ -188,7 +188,7 @@ jobs:
           else
             gh release create "${VERSION}" "${ZIP_PATH}" \
               --title "PDF Laser ${VERSION}" \
-              --notes "macOS universal app, Developer ID signed, notarized, and stapled."
+              --generate-notes
           fi
 
       - name: Check out Homebrew tap
