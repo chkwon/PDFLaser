@@ -18,12 +18,12 @@ struct PresenterToolbar: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            toolbarButton("Open PDF", systemImage: "folder", action: openAction)
+            toolbarButton("Open File", systemImage: "folder", action: openAction)
 
-            toolbarButton("Save Marked PDF", systemImage: "square.and.arrow.down", action: saveAction)
+            toolbarButton("Save Marked Copy", systemImage: "square.and.arrow.down", action: saveAction)
             .disabled(state.document == nil)
 
-            toolbarButton("Share Marked PDF", systemImage: "square.and.arrow.up", action: shareAction)
+            toolbarButton("Share Marked Copy", systemImage: "square.and.arrow.up", action: shareAction)
             .disabled(state.document == nil)
 
             Divider()

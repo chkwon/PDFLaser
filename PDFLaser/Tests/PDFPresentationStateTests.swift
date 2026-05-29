@@ -1,14 +1,16 @@
 import CoreGraphics
+import ImageIO
 import PDFKit
+import UniformTypeIdentifiers
 import XCTest
 @testable import PDFLaser
 
 @MainActor
 final class PDFPresentationStateTests: XCTestCase {
-    func testDefaultToolIsNone() {
+    func testDefaultToolIsTrailLaser() {
         let state = PDFPresentationState()
 
-        XCTAssertEqual(state.selectedTool, .none)
+        XCTAssertEqual(state.selectedTool, .laserTrail)
     }
 
     func testTabsReusePristineUntitledTabWhenOpeningPDF() throws {
@@ -75,6 +77,18 @@ final class PDFPresentationStateTests: XCTestCase {
         XCTAssertEqual(tabsModel.activeTab.sourcePDFURL, secondURL)
     }
 
+    func testTabsReusePristineUntitledTabWhenOpeningImage() throws {
+        let url = try makeTemporaryImage(fileExtension: "png", contentType: .png)
+        let tabsModel = PDFTabsModel()
+        let initialTabID = tabsModel.activeTabID
+
+        let openedTab = tabsModel.openDocument(url: url)
+
+        XCTAssertEqual(tabsModel.tabs.count, 1)
+        XCTAssertEqual(openedTab.id, initialTabID)
+        XCTAssertEqual(tabsModel.activeTab.sourceURL, url)
+    }
+
     func testOpeningPDFResetsNavigationAndMarkup() throws {
         let url = try makeTemporaryPDF(pageCount: 2)
         let state = PDFPresentationState()
@@ -88,6 +102,70 @@ final class PDFPresentationStateTests: XCTestCase {
         XCTAssertEqual(state.currentPageIndex, 0)
         XCTAssertTrue(state.penStrokesByPage.isEmpty)
         XCTAssertNil(state.errorMessage)
+    }
+
+    func testOpeningCommonImageTypesCreatesOnePageDocuments() throws {
+        let imageTypes: [(fileExtension: String, contentType: UTType)] = [
+            ("png", .png),
+            ("jpg", .jpeg),
+            ("tiff", .tiff)
+        ]
+
+        for imageType in imageTypes {
+            let url = try makeTemporaryImage(
+                fileExtension: imageType.fileExtension,
+                contentType: imageType.contentType,
+                width: 64,
+                height: 32
+            )
+            let state = PDFPresentationState()
+
+            state.openDocument(url: url)
+
+            XCTAssertNil(state.errorMessage)
+            XCTAssertEqual(state.pageCount, 1)
+            XCTAssertEqual(state.currentPageIndex, 0)
+            XCTAssertEqual(state.currentPageAspectRatio, 2, accuracy: 0.001)
+            XCTAssertEqual(state.sourceURL, url)
+
+            guard case .image(let source)? = state.sourceDocument else {
+                XCTFail("Expected image source for \(imageType.fileExtension)")
+                continue
+            }
+
+            XCTAssertEqual(source.contentType, imageType.contentType)
+            XCTAssertEqual(source.fileExtension, imageType.fileExtension)
+            XCTAssertEqual(source.pixelWidth, 64)
+            XCTAssertEqual(source.pixelHeight, 32)
+        }
+    }
+
+    func testOpeningImageKeepsDisplayOrientation() throws {
+        let url = try makeTemporaryTopBottomImage(
+            fileExtension: "png",
+            contentType: .png,
+            width: 20,
+            height: 20,
+            topRGBA: (255, 0, 0, 255),
+            bottomRGBA: (0, 0, 255, 255)
+        )
+        let state = PDFPresentationState()
+
+        state.openDocument(url: url)
+
+        guard let page = state.currentPage else {
+            XCTFail("Expected image page")
+            return
+        }
+
+        let renderedImage = try renderPageAsDisplayed(page, width: 20, height: 20)
+        let topPixel = try rgbaPixel(in: renderedImage, x: 10, y: 17)
+        let bottomPixel = try rgbaPixel(in: renderedImage, x: 10, y: 2)
+
+        XCTAssertGreaterThan(topPixel.red, 200)
+        XCTAssertLessThan(topPixel.blue, 80)
+        XCTAssertGreaterThan(bottomPixel.blue, 200)
+        XCTAssertLessThan(bottomPixel.red, 80)
     }
 
     func testNavigationClampsToDocumentBounds() throws {
@@ -812,6 +890,148 @@ final class PDFPresentationStateTests: XCTestCase {
         XCTAssertEqual(exportedDocument?.pageCount, 2)
     }
 
+    func testMarkedDocumentExportKeepsPDFContentTypeAndFilename() throws {
+        let url = try makeTemporaryPDF(pageCount: 2)
+        let state = PDFPresentationState()
+        state.openPDF(url: url)
+
+        let export = try MarkedDocumentExporter.exportMarkedDocument(from: state)
+        let exportedDocument = PDFDocument(data: export.data)
+
+        XCTAssertEqual(export.contentType, .pdf)
+        XCTAssertEqual(
+            export.filename,
+            "\(url.deletingPathExtension().lastPathComponent) Marked.pdf"
+        )
+        XCTAssertEqual(exportedDocument?.pageCount, 2)
+    }
+
+    func testMarkedImageExportKeepsSourceFormatFilenameAndPixelSize() throws {
+        let url = try makeTemporaryImage(
+            fileExtension: "png",
+            contentType: .png,
+            width: 64,
+            height: 64
+        )
+        let state = PDFPresentationState()
+        state.openDocument(url: url)
+        state.addPenStroke(
+            PenStroke(
+                normalizedPoints: [
+                    CGPoint(x: 0.1, y: 0.5),
+                    CGPoint(x: 0.9, y: 0.5)
+                ],
+                color: .defaultPenColor,
+                width: 16
+            )
+        )
+
+        let export = try MarkedDocumentExporter.exportMarkedDocument(from: state)
+        let exportedImage = try decodeImage(from: export.data)
+        let centerPixel = try rgbaPixel(in: exportedImage, x: 32, y: 32)
+
+        XCTAssertEqual(export.contentType, .png)
+        XCTAssertEqual(
+            export.filename,
+            "\(url.deletingPathExtension().lastPathComponent) Marked.png"
+        )
+        XCTAssertEqual(exportedImage.width, 64)
+        XCTAssertEqual(exportedImage.height, 64)
+        XCTAssertGreaterThan(centerPixel.red, 180)
+        XCTAssertLessThan(centerPixel.green, 140)
+        XCTAssertLessThan(centerPixel.blue, 140)
+    }
+
+    func testMarkedImageExportUsesOriginalJPEGExtensionAndContentType() throws {
+        let url = try makeTemporaryImage(
+            fileExtension: "jpg",
+            contentType: .jpeg,
+            width: 40,
+            height: 24
+        )
+        let state = PDFPresentationState()
+        state.openDocument(url: url)
+
+        let export = try MarkedDocumentExporter.exportMarkedDocument(from: state)
+        let exportedImage = try decodeImage(from: export.data)
+
+        XCTAssertEqual(export.contentType, .jpeg)
+        XCTAssertEqual(
+            export.filename,
+            "\(url.deletingPathExtension().lastPathComponent) Marked.jpg"
+        )
+        XCTAssertEqual(exportedImage.width, 40)
+        XCTAssertEqual(exportedImage.height, 24)
+    }
+
+    func testMarkedImageExportKeepsImageOrientation() throws {
+        let url = try makeTemporaryTopBottomImage(
+            fileExtension: "png",
+            contentType: .png,
+            width: 20,
+            height: 20,
+            topRGBA: (255, 0, 0, 255),
+            bottomRGBA: (0, 0, 255, 255)
+        )
+        let state = PDFPresentationState()
+        state.openDocument(url: url)
+        state.addPenStroke(
+            PenStroke(
+                normalizedPoints: [
+                    CGPoint(x: 0.2, y: 0.5),
+                    CGPoint(x: 0.8, y: 0.5)
+                ],
+                color: .defaultPenColor,
+                width: 2
+            )
+        )
+
+        let export = try MarkedDocumentExporter.exportMarkedDocument(from: state)
+        let exportedImage = try decodeImage(from: export.data)
+        let topPixel = try rgbaPixel(in: exportedImage, x: 10, y: 2)
+        let bottomPixel = try rgbaPixel(in: exportedImage, x: 10, y: 17)
+
+        XCTAssertGreaterThan(topPixel.red, 200)
+        XCTAssertLessThan(topPixel.blue, 80)
+        XCTAssertGreaterThan(bottomPixel.blue, 200)
+        XCTAssertLessThan(bottomPixel.red, 80)
+    }
+
+    func testMarkedImageExportKeepsPenWritingOrientation() throws {
+        let url = try makeTemporaryTopBottomImage(
+            fileExtension: "png",
+            contentType: .png,
+            width: 20,
+            height: 20,
+            topRGBA: (255, 255, 255, 255),
+            bottomRGBA: (255, 255, 255, 255)
+        )
+        let state = PDFPresentationState()
+        state.openDocument(url: url)
+        state.addPenStroke(
+            PenStroke(
+                normalizedPoints: [
+                    CGPoint(x: 0.2, y: 0.15),
+                    CGPoint(x: 0.8, y: 0.15)
+                ],
+                color: .defaultPenColor,
+                width: 4
+            )
+        )
+
+        let export = try MarkedDocumentExporter.exportMarkedDocument(from: state)
+        let exportedImage = try decodeImage(from: export.data)
+        let writtenTopPixel = try rgbaPixel(in: exportedImage, x: 10, y: 3)
+        let emptyBottomPixel = try rgbaPixel(in: exportedImage, x: 10, y: 17)
+
+        XCTAssertGreaterThan(writtenTopPixel.red, 180)
+        XCTAssertLessThan(writtenTopPixel.green, 140)
+        XCTAssertLessThan(writtenTopPixel.blue, 140)
+        XCTAssertGreaterThan(emptyBottomPixel.red, 220)
+        XCTAssertGreaterThan(emptyBottomPixel.green, 220)
+        XCTAssertGreaterThan(emptyBottomPixel.blue, 220)
+    }
+
     func testMarkedPDFExportRequiresDocument() {
         XCTAssertThrowsError(
             try PDFMarkupExporter.exportPDFData(
@@ -843,5 +1063,206 @@ final class PDFPresentationStateTests: XCTestCase {
 
         context.closePDF()
         return url
+    }
+
+    private func makeTemporaryImage(
+        fileExtension: String,
+        contentType: UTType,
+        width: Int = 64,
+        height: Int = 32
+    ) throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension(fileExtension)
+        let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
+        guard let context = CGContext(
+            data: nil,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else {
+            throw XCTSkip("Could not create temporary image context")
+        }
+
+        let bounds = CGRect(x: 0, y: 0, width: width, height: height)
+        context.setFillColor(CGColor(red: 1, green: 1, blue: 1, alpha: 1))
+        context.fill(bounds)
+        context.setFillColor(CGColor(red: 0.82, green: 0.88, blue: 0.96, alpha: 1))
+        context.fill(CGRect(x: 0, y: 0, width: width / 2, height: height / 2))
+
+        guard let image = context.makeImage(),
+              let destination = CGImageDestinationCreateWithURL(
+                url as CFURL,
+                contentType.identifier as CFString,
+                1,
+                nil
+              ) else {
+            throw XCTSkip("Could not create temporary image")
+        }
+
+        CGImageDestinationAddImage(destination, image, nil)
+
+        guard CGImageDestinationFinalize(destination) else {
+            throw XCTSkip("Could not write temporary image")
+        }
+
+        return url
+    }
+
+    private func makeTemporaryTopBottomImage(
+        fileExtension: String,
+        contentType: UTType,
+        width: Int,
+        height: Int,
+        topRGBA: (red: UInt8, green: UInt8, blue: UInt8, alpha: UInt8),
+        bottomRGBA: (red: UInt8, green: UInt8, blue: UInt8, alpha: UInt8)
+    ) throws -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension(fileExtension)
+        let bytesPerPixel = 4
+        let bytesPerRow = width * bytesPerPixel
+        var pixels = [UInt8](repeating: 0, count: height * bytesPerRow)
+
+        for y in 0..<height {
+            let color = y < height / 2 ? topRGBA : bottomRGBA
+            for x in 0..<width {
+                let offset = y * bytesPerRow + x * bytesPerPixel
+                pixels[offset] = color.red
+                pixels[offset + 1] = color.green
+                pixels[offset + 2] = color.blue
+                pixels[offset + 3] = color.alpha
+            }
+        }
+
+        let imageData = Data(pixels) as CFData
+        let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
+        guard let provider = CGDataProvider(data: imageData),
+              let image = CGImage(
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bitsPerPixel: 32,
+                bytesPerRow: bytesPerRow,
+                space: colorSpace,
+                bitmapInfo: CGBitmapInfo(
+                    rawValue: CGImageAlphaInfo.premultipliedLast.rawValue
+                        | CGBitmapInfo.byteOrder32Big.rawValue
+                ),
+                provider: provider,
+                decode: nil,
+                shouldInterpolate: false,
+                intent: .defaultIntent
+              ),
+              let destination = CGImageDestinationCreateWithURL(
+                url as CFURL,
+                contentType.identifier as CFString,
+                1,
+                nil
+              ) else {
+            throw XCTSkip("Could not create temporary orientation image")
+        }
+
+        CGImageDestinationAddImage(destination, image, nil)
+
+        guard CGImageDestinationFinalize(destination) else {
+            throw XCTSkip("Could not write temporary orientation image")
+        }
+
+        return url
+    }
+
+    private func decodeImage(from data: Data) throws -> CGImage {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
+            throw XCTSkip("Could not decode exported image")
+        }
+
+        return image
+    }
+
+    private func renderPageAsDisplayed(
+        _ page: PDFPage,
+        width: Int,
+        height: Int
+    ) throws -> CGImage {
+        let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
+        guard let context = CGContext(
+            data: nil,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                | CGBitmapInfo.byteOrder32Big.rawValue
+        ) else {
+            throw XCTSkip("Could not create page render context")
+        }
+
+        let bounds = CGRect(x: 0, y: 0, width: width, height: height)
+        context.setFillColor(CGColor(red: 1, green: 1, blue: 1, alpha: 1))
+        context.fill(bounds)
+        context.saveGState()
+        context.translateBy(x: 0, y: bounds.height)
+        context.scaleBy(x: 1, y: -1)
+
+        let pageBounds = page.bounds(for: .cropBox)
+        let scale = min(bounds.width / pageBounds.width, bounds.height / pageBounds.height)
+        let scaledSize = CGSize(width: pageBounds.width * scale, height: pageBounds.height * scale)
+        let origin = CGPoint(
+            x: (bounds.width - scaledSize.width) / 2,
+            y: (bounds.height - scaledSize.height) / 2
+        )
+
+        context.translateBy(x: origin.x, y: origin.y)
+        context.scaleBy(x: scale, y: scale)
+        context.translateBy(x: -pageBounds.minX, y: -pageBounds.minY)
+        page.draw(with: .cropBox, to: context)
+        context.restoreGState()
+
+        guard let image = context.makeImage() else {
+            throw XCTSkip("Could not render page")
+        }
+
+        return image
+    }
+
+    private func rgbaPixel(
+        in image: CGImage,
+        x: Int,
+        y: Int
+    ) throws -> (red: UInt8, green: UInt8, blue: UInt8, alpha: UInt8) {
+        guard let croppedImage = image.cropping(
+            to: CGRect(x: x, y: y, width: 1, height: 1)
+        ) else {
+            throw XCTSkip("Could not crop exported image")
+        }
+
+        var pixel = [UInt8](repeating: 0, count: 4)
+        let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
+        try pixel.withUnsafeMutableBytes { buffer in
+            guard let baseAddress = buffer.baseAddress,
+                  let context = CGContext(
+                    data: baseAddress,
+                    width: 1,
+                    height: 1,
+                    bitsPerComponent: 8,
+                    bytesPerRow: 4,
+                    space: colorSpace,
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                        | CGBitmapInfo.byteOrder32Big.rawValue
+                  ) else {
+                throw XCTSkip("Could not inspect exported image pixel")
+            }
+
+            context.interpolationQuality = .none
+            context.draw(croppedImage, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+        }
+
+        return (pixel[0], pixel[1], pixel[2], pixel[3])
     }
 }

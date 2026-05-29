@@ -13,9 +13,10 @@ struct ContentView: View {
     @StateObject private var tabsModel = PDFTabsModel()
     @State private var isImporterPresented = false
     @State private var isExporterPresented = false
-    @State private var exportDocument = ExportedPDFDocument()
-    @State private var sharedPDFItem: SharedPDFItem?
-    @State private var isPDFDropTargeted = false
+    @State private var exportDocument = ExportedMarkedDocument()
+    @State private var exportContentType: UTType = .pdf
+    @State private var sharedDocumentItem: SharedDocumentItem?
+    @State private var isDocumentDropTargeted = false
     @State private var alertTitle = "PDF Laser"
 
     private var state: PDFPresentationState {
@@ -35,11 +36,11 @@ struct ContentView: View {
 
     var body: some View {
         platformContent
-            .pdfDropTarget(isTargeted: $isPDFDropTargeted) { urls in
-                tabsModel.openPDFs(urls: urls)
+            .documentDropTarget(isTargeted: $isDocumentDropTargeted) { urls in
+                tabsModel.openDocuments(urls: urls)
             }
             .overlay {
-                if isPDFDropTargeted {
+                if isDocumentDropTargeted {
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
                         .stroke(Color.accentColor.opacity(0.7), lineWidth: 3)
                         .padding(8)
@@ -48,11 +49,11 @@ struct ContentView: View {
             }
             .focusedSceneObject(tabsModel)
             .onOpenURL { url in
-                tabsModel.openPDFs(urls: [url])
+                tabsModel.openDocuments(urls: [url])
             }
             .fileImporter(
                 isPresented: $isImporterPresented,
-                allowedContentTypes: [.pdf],
+                allowedContentTypes: PresentationSupportedFileTypes.importContentTypes,
                 allowsMultipleSelection: false
             ) { result in
                 switch result {
@@ -61,24 +62,24 @@ struct ContentView: View {
                         return
                     }
 
-                    tabsModel.openPDF(url: url)
+                    tabsModel.openDocument(url: url)
                 case .failure(let error):
-                    alertTitle = "Could not open PDF"
+                    alertTitle = "Could not open file"
                     state.errorMessage = error.localizedDescription
                 }
             }
             .fileExporter(
                 isPresented: $isExporterPresented,
                 document: exportDocument,
-                contentType: .pdf,
+                contentType: exportContentType,
                 defaultFilename: state.exportDefaultFilename
             ) { result in
                 if case .failure(let error) = result {
-                    alertTitle = "Could not save PDF"
+                    alertTitle = "Could not save file"
                     state.errorMessage = error.localizedDescription
                 }
             }
-            .platformPDFShareSheet(item: $sharedPDFItem)
+            .platformShareSheet(item: $sharedDocumentItem)
             .alert(
                 alertTitle,
                 isPresented: Binding(
@@ -103,14 +104,14 @@ struct ContentView: View {
         PresenterToolbar(
             state: state,
             openAction: {
-                alertTitle = "Could not open PDF"
+                alertTitle = "Could not open file"
                 isImporterPresented = true
             },
             saveAction: {
-                prepareMarkedPDFExport()
+                prepareMarkedExport()
             },
             shareAction: {
-                prepareMarkedPDFShare()
+                prepareMarkedShare()
             },
             isFullScreen: isFullScreen
         )
@@ -118,14 +119,14 @@ struct ContentView: View {
         PresenterToolbar(
             state: state,
             openAction: {
-                alertTitle = "Could not open PDF"
+                alertTitle = "Could not open file"
                 isImporterPresented = true
             },
             saveAction: {
-                prepareMarkedPDFExport()
+                prepareMarkedExport()
             },
             shareAction: {
-                prepareMarkedPDFShare()
+                prepareMarkedShare()
             }
         )
         #endif
@@ -242,35 +243,36 @@ struct ContentView: View {
     }
     #endif
 
-    private func prepareMarkedPDFExport() {
+    private func prepareMarkedExport() {
         do {
-            exportDocument = ExportedPDFDocument(
-                data: try PDFMarkupExporter.exportPDFData(from: state)
-            )
+            let export = try MarkedDocumentExporter.exportMarkedDocument(from: state)
+            exportDocument = ExportedMarkedDocument(data: export.data)
+            exportContentType = export.contentType
             isExporterPresented = true
         } catch {
-            alertTitle = "Could not save PDF"
+            alertTitle = "Could not save file"
             state.errorMessage = error.localizedDescription
         }
     }
 
-    private func prepareMarkedPDFShare() {
+    private func prepareMarkedShare() {
         do {
-            let url = try TemporaryPDFShareFile.write(
-                data: try PDFMarkupExporter.exportPDFData(from: state),
-                filename: state.exportDefaultFilename
+            let export = try MarkedDocumentExporter.exportMarkedDocument(from: state)
+            let url = try TemporaryMarkedShareFile.write(
+                data: export.data,
+                filename: export.filename
             )
-            presentMarkedPDFShare(url: url)
+            presentMarkedShare(url: url)
         } catch {
-            alertTitle = "Could not share PDF"
+            alertTitle = "Could not share file"
             state.errorMessage = error.localizedDescription
         }
     }
 
-    private func presentMarkedPDFShare(url: URL) {
+    private func presentMarkedShare(url: URL) {
         #if os(macOS)
         guard let contentView = NSApp.keyWindow?.contentView else {
-            alertTitle = "Could not share PDF"
+            alertTitle = "Could not share file"
             state.errorMessage = "Could not find a window to present the share menu."
             return
         }
@@ -287,7 +289,7 @@ struct ContentView: View {
             preferredEdge: .minY
         )
         #else
-        sharedPDFItem = SharedPDFItem(url: url)
+        sharedDocumentItem = SharedDocumentItem(url: url)
         #endif
     }
 }
@@ -305,15 +307,15 @@ private struct ToolbarHeightPreferenceKey: PreferenceKey {
 }
 #endif
 
-private struct SharedPDFItem: Identifiable {
+private struct SharedDocumentItem: Identifiable {
     let id = UUID()
     let url: URL
 }
 
-private enum TemporaryPDFShareFile {
+private enum TemporaryMarkedShareFile {
     static func write(data: Data, filename: String) throws -> URL {
         let directory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("PDFLaserSharedPDFs", isDirectory: true)
+            .appendingPathComponent("PDFLaserSharedFiles", isDirectory: true)
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
 
         try FileManager.default.createDirectory(
@@ -329,8 +331,8 @@ private enum TemporaryPDFShareFile {
     }
 }
 
-private enum PDFDropURLLoader {
-    static func loadPDFURLs(
+private enum DocumentDropURLLoader {
+    static func loadDocumentURLs(
         from providers: [NSItemProvider],
         completion: @escaping ([URL]) -> Void
     ) {
@@ -344,12 +346,12 @@ private enum PDFDropURLLoader {
         }
 
         let group = DispatchGroup()
-        let collector = PDFDropURLCollector()
+        let collector = DocumentDropURLCollector()
 
         for (index, provider) in fileProviders.enumerated() {
             group.enter()
             provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
-                if let url = pdfURL(from: item) {
+                if let url = documentURL(from: item) {
                     collector.append(url, at: index)
                 }
                 group.leave()
@@ -361,7 +363,7 @@ private enum PDFDropURLLoader {
         }
     }
 
-    private static func pdfURL(from item: NSSecureCoding?) -> URL? {
+    private static func documentURL(from item: NSSecureCoding?) -> URL? {
         let candidateURL: URL?
 
         switch item {
@@ -379,7 +381,7 @@ private enum PDFDropURLLoader {
 
         guard let candidateURL,
               candidateURL.isFileURL,
-              candidateURL.pathExtension.caseInsensitiveCompare("pdf") == .orderedSame else {
+              PresentationSupportedFileTypes.isSupportedFileURL(candidateURL) else {
             return nil
         }
 
@@ -406,7 +408,7 @@ private enum PDFDropURLLoader {
     }
 }
 
-private final class PDFDropURLCollector: @unchecked Sendable {
+private final class DocumentDropURLCollector: @unchecked Sendable {
     private let lock = NSLock()
     private var indexedURLs: [(index: Int, url: URL)] = []
 
@@ -442,14 +444,14 @@ private struct PDFActivityView: UIViewControllerRepresentable {
 #endif
 
 private extension View {
-    func pdfDropTarget(
+    func documentDropTarget(
         isTargeted: Binding<Bool>,
-        onDropPDFs: @escaping ([URL]) -> Void
+        onDropDocuments: @escaping ([URL]) -> Void
     ) -> some View {
         onDrop(of: [UTType.fileURL.identifier], isTargeted: isTargeted) { providers in
-            PDFDropURLLoader.loadPDFURLs(from: providers) { urls in
+            DocumentDropURLLoader.loadDocumentURLs(from: providers) { urls in
                 guard !urls.isEmpty else { return }
-                onDropPDFs(urls)
+                onDropDocuments(urls)
             }
             return providers.contains {
                 $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier)
@@ -458,7 +460,7 @@ private extension View {
     }
 
     @ViewBuilder
-    func platformPDFShareSheet(item: Binding<SharedPDFItem?>) -> some View {
+    func platformShareSheet(item: Binding<SharedDocumentItem?>) -> some View {
         #if os(iOS)
         sheet(item: item) { item in
             PDFActivityView(activityItems: [item.url])

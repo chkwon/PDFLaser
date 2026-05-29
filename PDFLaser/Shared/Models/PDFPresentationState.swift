@@ -2,6 +2,7 @@ import Combine
 import CoreGraphics
 import Foundation
 import PDFKit
+import UniformTypeIdentifiers
 
 @MainActor
 final class PDFPresentationState: ObservableObject, Identifiable {
@@ -9,7 +10,7 @@ final class PDFPresentationState: ObservableObject, Identifiable {
 
     @Published var document: PDFDocument?
     @Published var currentPageIndex: Int = 0
-    @Published var selectedTool: PresentationTool = .none {
+    @Published var selectedTool: PresentationTool = .laserTrail {
         didSet {
             guard oldValue != selectedTool else {
                 return
@@ -43,7 +44,7 @@ final class PDFPresentationState: ObservableObject, Identifiable {
     @Published var zoomScale: CGFloat = 1
     @Published var panOffset: CGSize = .zero
     @Published var errorMessage: String?
-    @Published private(set) var sourcePDFURL: URL?
+    @Published private(set) var sourceDocument: PresentationDocumentSource?
     @Published private(set) var laserDotPersistsUntilCleared = false
     @Published private var markupUndoActionsByPage: [Int: [MarkupUndoAction]] = [:]
     @Published private var markupRedoActionsByPage: [Int: [MarkupUndoAction]] = [:]
@@ -121,6 +122,26 @@ final class PDFPresentationState: ObservableObject, Identifiable {
         zoomScale > Self.minimumZoomScale + 0.0001
     }
 
+    var sourceURL: URL? {
+        sourceDocument?.url
+    }
+
+    var sourcePDFURL: URL? {
+        guard case .pdf(let url)? = sourceDocument else {
+            return nil
+        }
+
+        return url
+    }
+
+    var sourceTabIconSystemName: String {
+        sourceDocument?.tabIconSystemName ?? "doc"
+    }
+
+    var exportContentType: UTType {
+        sourceDocument?.exportContentType ?? .pdf
+    }
+
     init() {
         document = Self.makeBlankPresentationDocument()
     }
@@ -140,18 +161,15 @@ final class PDFPresentationState: ObservableObject, Identifiable {
     }
 
     func openPDF(url: URL) {
+        openDocument(url: url)
+    }
+
+    func openDocument(url: URL) {
         do {
-            document = try PDFDocumentLoader.loadPDF(from: url)
-            sourcePDFURL = url
-            currentPageIndex = 0
-            penStrokesByPage.removeAll()
-            markupUndoActionsByPage.removeAll()
-            markupRedoActionsByPage.removeAll()
-            activePenStroke = nil
-            activeEraseSnapshot = nil
-            activeErasePageIndex = nil
-            resetZoom()
-            clearLaser()
+            let loadedDocument = try PresentationDocumentLoader.loadDocument(from: url)
+            document = loadedDocument.document
+            sourceDocument = loadedDocument.source
+            resetPresentationSession()
             errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription
@@ -159,8 +177,7 @@ final class PDFPresentationState: ObservableObject, Identifiable {
     }
 
     var exportDefaultFilename: String {
-        let baseName = sourcePDFURL?.deletingPathExtension().lastPathComponent ?? "PDF Laser"
-        return "\(baseName) Marked.pdf"
+        sourceDocument?.markedFilename ?? "PDF Laser Marked.pdf"
     }
 
     func nextPage() {
@@ -540,6 +557,18 @@ final class PDFPresentationState: ObservableObject, Identifiable {
         laserTrailSegments.removeAll()
         isLaserTrailActive = false
         laserTrailFadeStartedAt = nil
+    }
+
+    private func resetPresentationSession() {
+        currentPageIndex = 0
+        penStrokesByPage.removeAll()
+        markupUndoActionsByPage.removeAll()
+        markupRedoActionsByPage.removeAll()
+        activePenStroke = nil
+        activeEraseSnapshot = nil
+        activeErasePageIndex = nil
+        resetZoom()
+        clearLaser()
     }
 
     private func pushUndoAction(_ action: MarkupUndoAction, on pageIndex: Int, clearingRedo: Bool = true) {

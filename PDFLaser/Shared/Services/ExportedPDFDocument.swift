@@ -2,9 +2,9 @@ import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct ExportedPDFDocument: FileDocument {
+struct ExportedMarkedDocument: FileDocument {
     static var readableContentTypes: [UTType] {
-        [.pdf]
+        [.pdf] + PresentationSupportedFileTypes.imageContentTypes
     }
 
     var data: Data
