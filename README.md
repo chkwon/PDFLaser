@@ -90,3 +90,7 @@ base64 -i DeveloperIDApplication.p12 | pbcopy
 ```
 
 Run the workflow manually with version `v0.1`, or push a `v0.1` tag. The workflow overrides the app marketing version from the tag/input, so `v0.1` produces app version `0.1`. The app remains outside the Mac App Store and does not add cloud storage or automatic document saving.
+
+## License
+
+PDF Laser is available under the [MIT License](LICENSE).
