@@ -105,6 +105,329 @@ final class PDFPresentationStateTests: XCTestCase {
         XCTAssertEqual(state.currentPageIndex, 1)
     }
 
+    func testDefaultZoomIsFittedPage() {
+        let state = PDFPresentationState()
+
+        XCTAssertEqual(state.zoomScale, 1)
+        XCTAssertEqual(state.panOffset, .zero)
+        XCTAssertFalse(state.isZoomed)
+    }
+
+    func testZoomOutCannotGoBelowDefault() {
+        let state = PDFPresentationState()
+        let viewportSize = CGSize(width: 100, height: 80)
+
+        state.updateZoomViewportSize(viewportSize)
+        state.zoomOut()
+
+        XCTAssertEqual(state.zoomScale, 1)
+        XCTAssertEqual(state.panOffset, .zero)
+
+        state.zoom(by: 0.1, around: CGPoint(x: 50, y: 40), viewportSize: viewportSize)
+
+        XCTAssertEqual(state.zoomScale, 1)
+        XCTAssertEqual(state.panOffset, .zero)
+    }
+
+    func testResetZoomReturnsToDefault() {
+        let state = PDFPresentationState()
+        let viewportSize = CGSize(width: 100, height: 80)
+
+        state.updateZoomViewportSize(viewportSize)
+        state.zoomIn()
+        state.pan(by: CGSize(width: 20, height: -10), viewportSize: viewportSize)
+        state.resetZoom()
+
+        XCTAssertEqual(state.zoomScale, 1)
+        XCTAssertEqual(state.panOffset, .zero)
+    }
+
+    func testPanClampsToZoomedContentBounds() {
+        let state = PDFPresentationState()
+        let viewportSize = CGSize(width: 100, height: 80)
+
+        state.zoom(by: 2, around: CGPoint(x: 50, y: 40), viewportSize: viewportSize)
+        state.pan(by: CGSize(width: 1_000, height: -1_000), viewportSize: viewportSize)
+
+        XCTAssertEqual(state.panOffset.width, 50)
+        XCTAssertEqual(state.panOffset.height, -40)
+    }
+
+    func testOpeningPDFResetsZoomAndPan() throws {
+        let url = try makeTemporaryPDF(pageCount: 1)
+        let state = PDFPresentationState()
+        let viewportSize = CGSize(width: 100, height: 80)
+
+        state.zoom(by: 2, around: CGPoint(x: 50, y: 40), viewportSize: viewportSize)
+        state.pan(by: CGSize(width: 20, height: -10), viewportSize: viewportSize)
+        state.openPDF(url: url)
+
+        XCTAssertEqual(state.zoomScale, 1)
+        XCTAssertEqual(state.panOffset, .zero)
+    }
+
+    func testZoomPersistsAcrossPageNavigation() throws {
+        let url = try makeTemporaryPDF(pageCount: 2)
+        let state = PDFPresentationState()
+        let viewportSize = CGSize(width: 100, height: 80)
+        state.openPDF(url: url)
+
+        state.zoom(by: 2, around: CGPoint(x: 50, y: 40), viewportSize: viewportSize)
+        state.pan(by: CGSize(width: 20, height: -10), viewportSize: viewportSize)
+        state.nextPage()
+
+        XCTAssertEqual(state.currentPageIndex, 1)
+        XCTAssertEqual(state.zoomScale, 2)
+        XCTAssertEqual(state.panOffset.width, 20)
+        XCTAssertEqual(state.panOffset.height, -10)
+    }
+
+    func testAnchorBasedZoomKeepsAnchorStable() {
+        let state = PDFPresentationState()
+        let viewportSize = CGSize(width: 100, height: 80)
+        let anchor = CGPoint(x: 75, y: 20)
+
+        let pointBefore = state.normalizedPagePoint(from: anchor, viewportSize: viewportSize)
+        state.zoom(by: 2, around: anchor, viewportSize: viewportSize)
+        let pointAfter = state.normalizedPagePoint(from: anchor, viewportSize: viewportSize)
+
+        XCTAssertEqual(pointBefore?.x ?? 0, pointAfter?.x ?? 1, accuracy: 0.0001)
+        XCTAssertEqual(pointBefore?.y ?? 0, pointAfter?.y ?? 1, accuracy: 0.0001)
+    }
+
+    func testMacScrollPansWhenZoomed() throws {
+        let url = try makeTemporaryPDF(pageCount: 2)
+        let state = PDFPresentationState()
+        let coordinator = MacPointerInputView.Coordinator(state: state)
+        let viewportSize = CGSize(width: 100, height: 80)
+        state.openPDF(url: url)
+        state.zoom(by: 2, around: CGPoint(x: 50, y: 40), viewportSize: viewportSize)
+
+        coordinator.handleScroll(
+            deltaX: 12,
+            deltaY: -24,
+            hasPreciseDeltas: true,
+            timestamp: 1,
+            viewportSize: viewportSize
+        )
+
+        XCTAssertEqual(state.currentPageIndex, 0)
+        XCTAssertEqual(state.panOffset.width, 12)
+        XCTAssertEqual(state.panOffset.height, -24)
+    }
+
+    func testMacScrollAtZoomedEdgeClampsWithoutChangingPage() throws {
+        let url = try makeTemporaryPDF(pageCount: 2)
+        let state = PDFPresentationState()
+        let coordinator = MacPointerInputView.Coordinator(state: state)
+        let viewportSize = CGSize(width: 100, height: 80)
+        state.openPDF(url: url)
+        state.zoom(by: 2, around: CGPoint(x: 50, y: 40), viewportSize: viewportSize)
+
+        coordinator.handleScroll(
+            deltaX: 1_000,
+            deltaY: -1_000,
+            hasPreciseDeltas: true,
+            timestamp: 1,
+            viewportSize: viewportSize
+        )
+        coordinator.handleScroll(
+            deltaX: 1_000,
+            deltaY: -1_000,
+            hasPreciseDeltas: true,
+            timestamp: 2,
+            viewportSize: viewportSize
+        )
+
+        XCTAssertEqual(state.currentPageIndex, 0)
+        XCTAssertEqual(state.panOffset.width, 50)
+        XCTAssertEqual(state.panOffset.height, -40)
+    }
+
+    func testMacScrollNavigatesPagesAtDefaultZoom() throws {
+        let url = try makeTemporaryPDF(pageCount: 2)
+        let state = PDFPresentationState()
+        let coordinator = MacPointerInputView.Coordinator(state: state)
+        let viewportSize = CGSize(width: 100, height: 80)
+        state.openPDF(url: url)
+
+        coordinator.handleScroll(
+            deltaX: 0,
+            deltaY: -31,
+            hasPreciseDeltas: true,
+            timestamp: 1,
+            viewportSize: viewportSize
+        )
+
+        XCTAssertEqual(state.currentPageIndex, 1)
+
+        coordinator.handleScroll(
+            deltaX: 0,
+            deltaY: 31,
+            hasPreciseDeltas: true,
+            timestamp: 1.3,
+            viewportSize: viewportSize
+        )
+
+        XCTAssertEqual(state.currentPageIndex, 0)
+    }
+
+    func testMacZoomedScrollClearsPendingPageScrollAccumulator() throws {
+        let url = try makeTemporaryPDF(pageCount: 2)
+        let state = PDFPresentationState()
+        let coordinator = MacPointerInputView.Coordinator(state: state)
+        let viewportSize = CGSize(width: 100, height: 80)
+        state.openPDF(url: url)
+
+        coordinator.handleScroll(
+            deltaX: 0,
+            deltaY: -20,
+            hasPreciseDeltas: true,
+            timestamp: 1,
+            viewportSize: viewportSize
+        )
+        state.zoom(by: 2, around: CGPoint(x: 50, y: 40), viewportSize: viewportSize)
+        coordinator.handleScroll(
+            deltaX: 0,
+            deltaY: -5,
+            hasPreciseDeltas: true,
+            timestamp: 1.1,
+            viewportSize: viewportSize
+        )
+        state.resetZoom()
+        coordinator.handleScroll(
+            deltaX: 0,
+            deltaY: -11,
+            hasPreciseDeltas: true,
+            timestamp: 1.4,
+            viewportSize: viewportSize
+        )
+
+        XCTAssertEqual(state.currentPageIndex, 0)
+    }
+
+    func testMacKeyboardNavigationWorksAtDefaultZoom() throws {
+        let url = try makeTemporaryPDF(pageCount: 2)
+        let state = PDFPresentationState()
+        let coordinator = MacPointerInputView.Coordinator(state: state)
+        let viewportSize = CGSize(width: 100, height: 80)
+        state.openPDF(url: url)
+
+        let didHandleNext = coordinator.handlePageNavigationShortcut(
+            keyCode: 124,
+            modifierFlags: [],
+            viewportSize: viewportSize
+        )
+
+        XCTAssertTrue(didHandleNext)
+        XCTAssertEqual(state.currentPageIndex, 1)
+
+        let didHandlePrevious = coordinator.handlePageNavigationShortcut(
+            keyCode: 123,
+            modifierFlags: [],
+            viewportSize: viewportSize
+        )
+
+        XCTAssertTrue(didHandlePrevious)
+        XCTAssertEqual(state.currentPageIndex, 0)
+    }
+
+    func testMacRightAndDownArrowsPanWhileZoomed() throws {
+        let url = try makeTemporaryPDF(pageCount: 2)
+        let state = PDFPresentationState()
+        let coordinator = MacPointerInputView.Coordinator(state: state)
+        let viewportSize = CGSize(width: 100, height: 80)
+        state.openPDF(url: url)
+        state.zoom(by: 2, around: CGPoint(x: 50, y: 40), viewportSize: viewportSize)
+
+        let didHandleRight = coordinator.handlePageNavigationShortcut(
+            keyCode: 124,
+            modifierFlags: [],
+            viewportSize: viewportSize
+        )
+        let didHandleDown = coordinator.handlePageNavigationShortcut(
+            keyCode: 125,
+            modifierFlags: [],
+            viewportSize: viewportSize
+        )
+
+        XCTAssertTrue(didHandleRight)
+        XCTAssertTrue(didHandleDown)
+        XCTAssertEqual(state.currentPageIndex, 0)
+        XCTAssertEqual(state.panOffset.width, -10)
+        XCTAssertEqual(state.panOffset.height, -8)
+    }
+
+    func testMacLeftAndUpArrowsPanWhileZoomed() throws {
+        let url = try makeTemporaryPDF(pageCount: 2)
+        let state = PDFPresentationState()
+        let coordinator = MacPointerInputView.Coordinator(state: state)
+        let viewportSize = CGSize(width: 100, height: 80)
+        state.openPDF(url: url)
+        state.zoom(by: 2, around: CGPoint(x: 50, y: 40), viewportSize: viewportSize)
+
+        let didHandleLeft = coordinator.handlePageNavigationShortcut(
+            keyCode: 123,
+            modifierFlags: [],
+            viewportSize: viewportSize
+        )
+        let didHandleUp = coordinator.handlePageNavigationShortcut(
+            keyCode: 126,
+            modifierFlags: [],
+            viewportSize: viewportSize
+        )
+
+        XCTAssertTrue(didHandleLeft)
+        XCTAssertTrue(didHandleUp)
+        XCTAssertEqual(state.currentPageIndex, 0)
+        XCTAssertEqual(state.panOffset.width, 10)
+        XCTAssertEqual(state.panOffset.height, 8)
+    }
+
+    func testMacArrowKeyPanClampsWhileZoomed() throws {
+        let url = try makeTemporaryPDF(pageCount: 2)
+        let state = PDFPresentationState()
+        let coordinator = MacPointerInputView.Coordinator(state: state)
+        let viewportSize = CGSize(width: 100, height: 80)
+        state.openPDF(url: url)
+        state.zoom(by: 2, around: CGPoint(x: 50, y: 40), viewportSize: viewportSize)
+
+        for _ in 0..<20 {
+            _ = coordinator.handlePageNavigationShortcut(
+                keyCode: 124,
+                modifierFlags: [],
+                viewportSize: viewportSize
+            )
+            _ = coordinator.handlePageNavigationShortcut(
+                keyCode: 125,
+                modifierFlags: [],
+                viewportSize: viewportSize
+            )
+        }
+
+        XCTAssertEqual(state.currentPageIndex, 0)
+        XCTAssertEqual(state.panOffset.width, -50)
+        XCTAssertEqual(state.panOffset.height, -40)
+    }
+
+    func testMacSpacebarNavigationIsIgnoredWhileZoomed() throws {
+        let url = try makeTemporaryPDF(pageCount: 2)
+        let state = PDFPresentationState()
+        let coordinator = MacPointerInputView.Coordinator(state: state)
+        let viewportSize = CGSize(width: 100, height: 80)
+        state.openPDF(url: url)
+        state.zoom(by: 2, around: CGPoint(x: 50, y: 40), viewportSize: viewportSize)
+
+        let didHandleSpace = coordinator.handlePageNavigationShortcut(
+            keyCode: 49,
+            modifierFlags: [],
+            viewportSize: viewportSize
+        )
+
+        XCTAssertTrue(didHandleSpace)
+        XCTAssertEqual(state.currentPageIndex, 0)
+    }
+
     func testClearAndUndoCurrentPageMarkup() throws {
         let url = try makeTemporaryPDF(pageCount: 1)
         let state = PDFPresentationState()

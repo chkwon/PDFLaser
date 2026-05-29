@@ -30,7 +30,14 @@ struct MacPointerInputView: NSViewRepresentable {
             self.state = state
         }
 
-        func handleMove(at normalizedPoint: CGPoint) {
+        func handleMove(at viewportPoint: CGPoint, viewportSize: CGSize) {
+            guard let normalizedPoint = state.normalizedPagePoint(
+                from: viewportPoint,
+                viewportSize: viewportSize
+            ) else {
+                return
+            }
+
             switch state.selectedTool {
             case .laserDot:
                 state.updateLaserDot(at: normalizedPoint, isPressed: false, persistsUntilCleared: true)
@@ -39,7 +46,14 @@ struct MacPointerInputView: NSViewRepresentable {
             }
         }
 
-        func beginDrag(at normalizedPoint: CGPoint) {
+        func beginDrag(at viewportPoint: CGPoint, viewportSize: CGSize) {
+            guard let normalizedPoint = state.normalizedPagePoint(
+                from: viewportPoint,
+                viewportSize: viewportSize
+            ) else {
+                return
+            }
+
             switch state.selectedTool {
             case .pen:
                 state.beginPenStroke(at: normalizedPoint)
@@ -54,7 +68,14 @@ struct MacPointerInputView: NSViewRepresentable {
             }
         }
 
-        func continueDrag(at normalizedPoint: CGPoint) {
+        func continueDrag(at viewportPoint: CGPoint, viewportSize: CGSize) {
+            guard let normalizedPoint = state.normalizedPagePoint(
+                from: viewportPoint,
+                viewportSize: viewportSize
+            ) else {
+                return
+            }
+
             switch state.selectedTool {
             case .pen:
                 state.appendPenStroke(at: normalizedPoint)
@@ -69,7 +90,14 @@ struct MacPointerInputView: NSViewRepresentable {
             }
         }
 
-        func endDrag(at normalizedPoint: CGPoint) {
+        func endDrag(at viewportPoint: CGPoint, viewportSize: CGSize) {
+            guard let normalizedPoint = state.normalizedPagePoint(
+                from: viewportPoint,
+                viewportSize: viewportSize
+            ) else {
+                return
+            }
+
             switch state.selectedTool {
             case .pen:
                 state.endPenStroke(at: normalizedPoint)
@@ -91,8 +119,93 @@ struct MacPointerInputView: NSViewRepresentable {
             state.clearLaserDot()
         }
 
-        func handleScroll(deltaY: CGFloat, hasPreciseDeltas: Bool, timestamp: TimeInterval) {
+        func handleZoomShortcut(with event: NSEvent) -> Bool {
+            guard event.modifierFlags.intersection(.deviceIndependentFlagsMask).contains(.command) else {
+                return false
+            }
+
+            switch event.charactersIgnoringModifiers {
+            case "=", "+":
+                state.zoomIn()
+            case "-":
+                state.zoomOut()
+            case "0":
+                state.resetZoom()
+            default:
+                return false
+            }
+
+            return true
+        }
+
+        func handlePageNavigationShortcut(
+            keyCode: UInt16,
+            modifierFlags: NSEvent.ModifierFlags,
+            viewportSize: CGSize
+        ) -> Bool {
+            let direction: PageNavigationDirection?
+
+            switch keyCode {
+            case 49 where modifierFlags.contains(.shift):
+                direction = .previous
+            case 124:
+                direction = .right
+            case 125:
+                direction = .down
+            case 123:
+                direction = .left
+            case 126:
+                direction = .up
+            case 49, 36, 76, 121:
+                direction = .next
+            case 51, 116:
+                direction = .previous
+            default:
+                direction = nil
+            }
+
+            guard let direction else {
+                return false
+            }
+
+            guard !state.isZoomed else {
+                if let panTranslation = direction.panTranslation(in: viewportSize) {
+                    state.pan(by: panTranslation, viewportSize: viewportSize)
+                }
+
+                return true
+            }
+
+            switch direction {
+            case .next, .right, .down:
+                state.nextPage()
+            case .previous, .left, .up:
+                state.previousPage()
+            }
+
+            return true
+        }
+
+        func handleScroll(
+            deltaX: CGFloat,
+            deltaY: CGFloat,
+            hasPreciseDeltas: Bool,
+            timestamp: TimeInterval,
+            viewportSize: CGSize
+        ) {
             guard state.pageCount > 0 else {
+                return
+            }
+
+            let scaledDeltaX = hasPreciseDeltas ? deltaX : deltaX * 40
+            let scaledDeltaY = hasPreciseDeltas ? deltaY : deltaY * 40
+
+            if state.isZoomed {
+                state.pan(
+                    by: CGSize(width: scaledDeltaX, height: scaledDeltaY),
+                    viewportSize: viewportSize
+                )
+                scrollAccumulator = 0
                 return
             }
 
@@ -101,8 +214,7 @@ struct MacPointerInputView: NSViewRepresentable {
                 return
             }
 
-            let scaledDelta = hasPreciseDeltas ? deltaY : deltaY * 40
-            scrollAccumulator += scaledDelta
+            scrollAccumulator += scaledDeltaY
 
             let threshold: CGFloat = 30
             guard abs(scrollAccumulator) >= threshold else {
@@ -118,6 +230,33 @@ struct MacPointerInputView: NSViewRepresentable {
             scrollAccumulator = 0
             lastScrollNavigationTime = timestamp
         }
+
+        private enum PageNavigationDirection {
+            case next
+            case previous
+            case left
+            case right
+            case up
+            case down
+
+            func panTranslation(in viewportSize: CGSize) -> CGSize? {
+                let horizontalStep = viewportSize.width * 0.1
+                let verticalStep = viewportSize.height * 0.1
+
+                switch self {
+                case .left:
+                    return CGSize(width: horizontalStep, height: 0)
+                case .right:
+                    return CGSize(width: -horizontalStep, height: 0)
+                case .up:
+                    return CGSize(width: 0, height: verticalStep)
+                case .down:
+                    return CGSize(width: 0, height: -verticalStep)
+                case .next, .previous:
+                    return nil
+                }
+            }
+        }
     }
 }
 
@@ -125,6 +264,7 @@ struct MacPointerInputView: NSViewRepresentable {
 final class PointerInputNSView: NSView {
     weak var coordinator: MacPointerInputView.Coordinator?
     private var isMouseInside = false
+    private var isToolDragActive = false
 
     override var isFlipped: Bool {
         true
@@ -179,74 +319,69 @@ final class PointerInputNSView: NSView {
     }
 
     override func mouseMoved(with event: NSEvent) {
-        guard let normalizedPoint = normalizedPoint(from: event) else {
-            return
-        }
-
-        coordinator?.handleMove(at: normalizedPoint)
+        coordinator?.handleMove(at: localPoint(from: event), viewportSize: bounds.size)
     }
 
     override func mouseDown(with event: NSEvent) {
         window?.makeFirstResponder(self)
+        let point = localPoint(from: event)
 
-        guard let normalizedPoint = normalizedPoint(from: event) else {
-            return
-        }
-
-        coordinator?.beginDrag(at: normalizedPoint)
+        isToolDragActive = true
+        coordinator?.beginDrag(at: point, viewportSize: bounds.size)
     }
 
     override func mouseDragged(with event: NSEvent) {
-        guard let normalizedPoint = normalizedPoint(from: event) else {
+        guard isToolDragActive else {
             return
         }
 
-        coordinator?.continueDrag(at: normalizedPoint)
+        coordinator?.continueDrag(at: localPoint(from: event), viewportSize: bounds.size)
     }
 
     override func mouseUp(with event: NSEvent) {
-        guard let normalizedPoint = normalizedPoint(from: event) else {
+        guard isToolDragActive else {
             return
         }
 
-        coordinator?.endDrag(at: normalizedPoint)
+        isToolDragActive = false
+        coordinator?.endDrag(at: localPoint(from: event), viewportSize: bounds.size)
     }
 
     override func mouseExited(with event: NSEvent) {
         isMouseInside = false
+        isToolDragActive = false
         NSCursor.arrow.set()
         coordinator?.cancelInteraction()
     }
 
     override func scrollWheel(with event: NSEvent) {
         coordinator?.handleScroll(
+            deltaX: event.scrollingDeltaX,
             deltaY: event.scrollingDeltaY,
             hasPreciseDeltas: event.hasPreciseScrollingDeltas,
-            timestamp: event.timestamp
+            timestamp: event.timestamp,
+            viewportSize: bounds.size
         )
     }
 
     override func keyDown(with event: NSEvent) {
-        guard let state = coordinator?.state else {
-            super.keyDown(with: event)
+        if coordinator?.handleZoomShortcut(with: event) == true {
             return
         }
 
-        switch event.keyCode {
-        case 49 where event.modifierFlags.contains(.shift):
-            state.previousPage()
-        case 124, 125, 49, 36, 76, 121:
-            state.nextPage()
-        case 123, 126, 51, 116:
-            state.previousPage()
-        default:
-            super.keyDown(with: event)
+        if coordinator?.handlePageNavigationShortcut(
+            keyCode: event.keyCode,
+            modifierFlags: event.modifierFlags,
+            viewportSize: bounds.size
+        ) == true {
+            return
         }
+
+        super.keyDown(with: event)
     }
 
-    private func normalizedPoint(from event: NSEvent) -> CGPoint? {
-        let localPoint = convert(event.locationInWindow, from: nil)
-        return CGPoint.normalized(from: localPoint, in: bounds.size)
+    private func localPoint(from event: NSEvent) -> CGPoint {
+        convert(event.locationInWindow, from: nil)
     }
 
     private var activeCursor: NSCursor {
