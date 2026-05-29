@@ -61,6 +61,8 @@ struct PresenterToolbar: View {
             .accessibilityLabel(Text("Tool"))
             .presenterToolbarHelp("Tool")
 
+            toolColorControls
+
             Spacer(minLength: 8)
 
             toolbarButton("Undo", systemImage: "arrow.uturn.backward") {
@@ -100,6 +102,69 @@ struct PresenterToolbar: View {
         .background(.bar)
     }
 
+    @ViewBuilder
+    private var toolColorControls: some View {
+        switch state.selectedTool {
+        case .laserDot, .laserTrail:
+            colorSwatchRow(
+                title: "Laser Color",
+                presets: LaserColorPreset.allCases,
+                selectedPreset: state.laserSettings.colorPreset
+            ) { preset in
+                state.laserSettings.colorPreset = preset
+            }
+        case .pen:
+            colorSwatchRow(
+                title: "Pen Color",
+                presets: PenColorPreset.allCases,
+                selectedPreset: state.penColorPreset
+            ) { preset in
+                state.penColorPreset = preset
+            }
+        case .none, .erase:
+            EmptyView()
+        }
+    }
+
+    private func colorSwatchRow<P: ToolbarColorPreset>(
+        title: String,
+        presets: [P],
+        selectedPreset: P,
+        select: @escaping (P) -> Void
+    ) -> some View {
+        HStack(spacing: 6) {
+            ForEach(presets) { preset in
+                let isSelected = preset == selectedPreset
+
+                Button {
+                    select(preset)
+                } label: {
+                    ZStack {
+                        if isSelected {
+                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                .fill(Color.secondary.opacity(0.18))
+                        }
+
+                        Circle()
+                            .fill(Color(platformColor: preset.swatchColor))
+                            .frame(width: 18, height: 18)
+                            .overlay {
+                                Circle()
+                                    .strokeBorder(Color.primary.opacity(isSelected ? 0.32 : 0.16), lineWidth: 1)
+                            }
+                            .shadow(color: .black.opacity(0.16), radius: 1, y: 1)
+                    }
+                    .frame(width: 30, height: 28)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("\(preset.title) \(title)"))
+                .presenterToolbarHelp("\(preset.title) \(title)")
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text(title))
+    }
+
     private func toolbarButton(
         _ title: String,
         systemImage: String,
@@ -112,6 +177,23 @@ struct PresenterToolbar: View {
         }
         .accessibilityLabel(Text(title))
         .presenterToolbarHelp(title)
+    }
+}
+
+private protocol ToolbarColorPreset: Hashable, Identifiable {
+    var title: String { get }
+    var swatchColor: PlatformColor { get }
+}
+
+extension LaserColorPreset: ToolbarColorPreset {
+    var swatchColor: PlatformColor {
+        mainColor
+    }
+}
+
+extension PenColorPreset: ToolbarColorPreset {
+    var swatchColor: PlatformColor {
+        color
     }
 }
 
