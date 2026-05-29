@@ -9,7 +9,7 @@ enum PDFMarkupExportError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noDocument:
-            return "Open a PDF before saving a marked copy."
+            return "Open a document before saving a marked copy."
         case .couldNotCreateContext:
             return "Could not create the exported PDF."
         }
@@ -62,7 +62,7 @@ enum PDFMarkupExporter {
                 strokes.append(activePenStroke)
             }
 
-            draw(strokes: strokes, in: context, pageSize: mediaBox.size)
+            drawPenStrokes(strokes, in: context, pageSize: mediaBox.size)
             context.endPDFPage()
         }
 
@@ -70,7 +70,7 @@ enum PDFMarkupExporter {
         return outputData as Data
     }
 
-    private static func pageInfo(for mediaBox: CGRect) -> CFDictionary {
+    static func pageInfo(for mediaBox: CGRect) -> CFDictionary {
         var mediaBox = mediaBox
         let mediaBoxData = NSData(
             bytes: &mediaBox,
@@ -89,7 +89,7 @@ enum PDFMarkupExporter {
         context.restoreGState()
     }
 
-    private static func draw(strokes: [PenStroke], in context: CGContext, pageSize: CGSize) {
+    static func drawPenStrokes(_ strokes: [PenStroke], in context: CGContext, pageSize: CGSize) {
         for stroke in strokes where !stroke.normalizedPoints.isEmpty {
             context.saveGState()
             context.setStrokeColor(stroke.color.cgColor)

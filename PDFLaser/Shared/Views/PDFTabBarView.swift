@@ -84,12 +84,12 @@ private struct PDFTabCell: View {
     @State private var isHovering = false
 
     private var title: String {
-        tab.sourcePDFURL?.deletingPathExtension().lastPathComponent ?? "Untitled"
+        tab.sourceURL?.deletingPathExtension().lastPathComponent ?? "Untitled"
     }
 
     var body: some View {
         HStack(spacing: 6) {
-            Image(systemName: "doc.text")
+            Image(systemName: tab.sourceTabIconSystemName)
                 .font(.system(size: 11, weight: .regular))
                 .foregroundStyle(isActive ? .primary : .secondary)
 

@@ -16,7 +16,7 @@ struct PDFSlideView: View {
                             .font(.system(size: 44, weight: .regular))
                             .foregroundStyle(.secondary)
 
-                        Text("Open a PDF to present")
+                        Text("Open a PDF or image to present")
                             .font(.title3)
                             .foregroundStyle(.secondary)
                     }

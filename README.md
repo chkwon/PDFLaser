@@ -1,6 +1,6 @@
 # PDF Laser
 
-PDF Laser is a universal SwiftUI app for presenting PDF slide decks with a temporary laser pointer and simple in-session pen markup.
+PDF Laser is a universal SwiftUI app for presenting PDF slide decks and image files with a temporary laser pointer and simple in-session pen markup.
 
 <p align="center">
   <img src="PDFLaser/Shared/Assets.xcassets/AppIcon.appiconset/AppIcon-256.png" alt="PDF Laser app icon" width="128">
@@ -30,7 +30,7 @@ brew upgrade pdflaser
 
 ## What It Does
 
-- Opens a user-selected PDF.
+- Opens a user-selected PDF or common image file.
 - Presents exactly one fitted page at a time.
 - Supports macOS keyboard navigation: right, down, and space for next; left, up, and backspace for previous.
 - Supports iPadOS touch navigation, on-screen previous/next controls, and best-effort external keyboard arrows.
@@ -38,16 +38,16 @@ brew upgrade pdflaser
 - Keeps laser effects temporary.
 - Keeps pen markup in memory per page for the current app session, with stroke-based erase.
 - Supports clearing or undoing markup on the current page.
-- Exports a new flattened PDF copy with pen markup when the user explicitly chooses Save Marked PDF.
+- Exports a new flattened marked copy: PDF sources save as PDF, and image sources save in the original image format.
 
 ## Privacy And Storage
 
-PDF Laser does not use iCloud, cloud sync, a document browser, autosave, or app-managed document storage. It reads the PDF selected by the user and never modifies that original file. Laser effects remain temporary. Pen markup is session-only unless the user explicitly exports a new flattened PDF copy with Save Marked PDF.
+PDF Laser does not use iCloud, cloud sync, a document browser, autosave, or app-managed document storage. It reads the PDF or image selected by the user and never modifies that original file. Laser effects remain temporary. Pen markup is session-only unless the user explicitly exports a new flattened marked copy.
 
 ## Architecture
 
 - SwiftUI owns the application shell and toolbar.
-- PDFKit loads PDF data and draws the current page.
+- PDFKit loads PDF data and draws the current page; image files are converted into a single-page internal PDF for presentation.
 - AppKit and UIKit wrappers provide page rendering and input capture.
 - Shared model code stores navigation state, tool selection, laser settings, and pen strokes.
 - All laser and pen points use normalized page-relative coordinates in the `0...1` range, so overlays stay aligned when the window or screen size changes.

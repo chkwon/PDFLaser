@@ -32,6 +32,15 @@ targets:
             LSHandlerRank: Alternate
             LSItemContentTypes:
               - com.adobe.pdf
+          - CFBundleTypeName: Image File
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - public.png
+              - public.jpeg
+              - public.heic
+              - public.heif
+              - public.tiff
     settings:
       base:
         PRODUCT_NAME: PDF Laser
@@ -65,6 +74,15 @@ targets:
             LSHandlerRank: Alternate
             LSItemContentTypes:
               - com.adobe.pdf
+          - CFBundleTypeName: Image File
+            CFBundleTypeRole: Viewer
+            LSHandlerRank: Alternate
+            LSItemContentTypes:
+              - public.png
+              - public.jpeg
+              - public.heic
+              - public.heif
+              - public.tiff
         LSSupportsOpeningDocumentsInPlace: true
     settings:
       base:
