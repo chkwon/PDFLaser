@@ -2,6 +2,7 @@ import SwiftUI
 
 struct PresentationCanvasView: View {
     @ObservedObject var state: PDFPresentationState
+    var zoomScale: CGFloat = 1
     private let cleanupTimer = Timer.publish(every: 0.2, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -26,7 +27,7 @@ struct PresentationCanvasView: View {
             drawStroke(
                 points: stroke.normalizedPoints,
                 color: Color(platformColor: stroke.color),
-                width: stroke.width,
+                width: stroke.width * zoomScale,
                 opacity: 1,
                 in: &context,
                 size: size
@@ -37,7 +38,7 @@ struct PresentationCanvasView: View {
             drawStroke(
                 points: activePenStroke.normalizedPoints,
                 color: Color(platformColor: activePenStroke.color),
-                width: activePenStroke.width,
+                width: activePenStroke.width * zoomScale,
                 opacity: 1,
                 in: &context,
                 size: size
@@ -100,7 +101,7 @@ struct PresentationCanvasView: View {
             let center = points[0].normalizedPosition.denormalized(in: size)
             drawHighlightedLaserDot(
                 center: center,
-                radius: max(state.laserSettings.width, 5),
+                radius: max(state.laserSettings.width * zoomScale, 5),
                 color: color,
                 opacity: opacity,
                 in: &context
@@ -116,7 +117,7 @@ struct PresentationCanvasView: View {
         drawGoodNotesLaserPath(
             path,
             color: color,
-            baseWidth: state.laserSettings.width,
+            baseWidth: state.laserSettings.width * zoomScale,
             opacity: opacity,
             in: &context
         )
@@ -172,13 +173,13 @@ struct PresentationCanvasView: View {
         if state.isLaserDotPressed {
             drawHighlightedLaserDot(
                 center: center,
-                radius: state.laserSettings.dotRadius,
+                radius: state.laserSettings.dotRadius * zoomScale,
                 color: color,
                 opacity: 1,
                 in: &context
             )
         } else {
-            let radius = max(state.laserSettings.dotRadius * 0.42, 3)
+            let radius = max(state.laserSettings.dotRadius * zoomScale * 0.42, 3)
             context.fill(
                 Path(ellipseIn: circleRect(center: center, radius: radius)),
                 with: .color(color)

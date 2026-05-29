@@ -29,24 +29,34 @@ struct PDFSlideView: View {
 
     private func slideStack(in containerSize: CGSize) -> some View {
         let pageSize = fittedPageSize(in: containerSize, aspectRatio: state.currentPageAspectRatio)
+        let contentSize = CGSize(
+            width: pageSize.width * state.zoomScale,
+            height: pageSize.height * state.zoomScale
+        )
 
         return ZStack {
-            #if os(macOS)
-            MacPDFViewRepresentable(page: state.currentPage)
-            #else
-            IOSPDFViewRepresentable(page: state.currentPage)
-            #endif
+            ZStack {
+                #if os(macOS)
+                MacPDFViewRepresentable(page: state.currentPage)
+                #else
+                IOSPDFViewRepresentable(page: state.currentPage)
+                #endif
 
-            PresentationCanvasView(state: state)
+                PresentationCanvasView(state: state, zoomScale: state.zoomScale)
+            }
+            .frame(width: contentSize.width, height: contentSize.height)
+            .offset(x: state.panOffset.width, y: state.panOffset.height)
 
             #if os(macOS)
             MacPointerInputView(state: state)
+                .frame(width: pageSize.width, height: pageSize.height)
             #else
             TouchInputView(
                 state: state,
                 onNext: { state.nextPage() },
                 onPrevious: { state.previousPage() }
             )
+            .frame(width: pageSize.width, height: pageSize.height)
             #endif
         }
         .frame(width: pageSize.width, height: pageSize.height)
@@ -54,6 +64,15 @@ struct PDFSlideView: View {
         .clipShape(Rectangle())
         .shadow(color: .black.opacity(0.28), radius: 24, y: 12)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .onAppear {
+            state.updateZoomViewportSize(pageSize)
+        }
+        .onChange(of: pageSize) { _, newValue in
+            state.updateZoomViewportSize(newValue)
+        }
+        .onChange(of: state.zoomScale) { _, _ in
+            state.clampPan(viewportSize: pageSize)
+        }
     }
 
     private func fittedPageSize(in containerSize: CGSize, aspectRatio: CGFloat) -> CGSize {

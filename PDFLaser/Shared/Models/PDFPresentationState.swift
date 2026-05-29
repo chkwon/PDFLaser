@@ -40,17 +40,24 @@ final class PDFPresentationState: ObservableObject, Identifiable {
     @Published var isLaserTrailActive = false
     @Published var laserTrailFadeStartedAt: TimeInterval?
     @Published var activePenStroke: PenStroke?
+    @Published var zoomScale: CGFloat = 1
+    @Published var panOffset: CGSize = .zero
     @Published var errorMessage: String?
     @Published private(set) var sourcePDFURL: URL?
     @Published private(set) var laserDotPersistsUntilCleared = false
     @Published private var markupUndoActionsByPage: [Int: [MarkupUndoAction]] = [:]
     @Published private var markupRedoActionsByPage: [Int: [MarkupUndoAction]] = [:]
 
+    static let minimumZoomScale: CGFloat = 1
+    static let maximumZoomScale: CGFloat = 4
+    static let keyboardZoomStep: CGFloat = 1.25
+
     var penColor: PlatformColor = .defaultPenColor
     var penWidth: CGFloat = 3
     var eraserRadius: CGFloat = 0.025
     private var activeEraseSnapshot: [PenStroke]?
     private var activeErasePageIndex: Int?
+    private var lastZoomViewportSize: CGSize = .zero
 
     var pageCount: Int {
         document?.pageCount ?? 0
@@ -110,6 +117,10 @@ final class PDFPresentationState: ObservableObject, Identifiable {
         !(markupRedoActionsByPage[currentPageIndex] ?? []).isEmpty
     }
 
+    var isZoomed: Bool {
+        zoomScale > Self.minimumZoomScale + 0.0001
+    }
+
     init() {
         document = Self.makeBlankPresentationDocument()
     }
@@ -139,6 +150,7 @@ final class PDFPresentationState: ObservableObject, Identifiable {
             activePenStroke = nil
             activeEraseSnapshot = nil
             activeErasePageIndex = nil
+            resetZoom()
             clearLaser()
             errorMessage = nil
         } catch {
@@ -307,6 +319,88 @@ final class PDFPresentationState: ObservableObject, Identifiable {
         endErase()
     }
 
+    func updateZoomViewportSize(_ viewportSize: CGSize) {
+        guard viewportSize.isValidZoomViewport else {
+            return
+        }
+
+        lastZoomViewportSize = viewportSize
+        clampPan(viewportSize: viewportSize)
+    }
+
+    func zoomIn() {
+        setZoomScale(zoomScale * Self.keyboardZoomStep, anchor: nil, viewportSize: activeZoomViewportSize)
+    }
+
+    func zoomOut() {
+        setZoomScale(zoomScale / Self.keyboardZoomStep, anchor: nil, viewportSize: activeZoomViewportSize)
+    }
+
+    func resetZoom() {
+        zoomScale = Self.minimumZoomScale
+        panOffset = .zero
+    }
+
+    func zoom(by factor: CGFloat, around anchor: CGPoint, viewportSize: CGSize) {
+        guard factor.isFinite, factor > 0, viewportSize.isValidZoomViewport else {
+            return
+        }
+
+        lastZoomViewportSize = viewportSize
+        setZoomScale(zoomScale * factor, anchor: anchor, viewportSize: viewportSize)
+    }
+
+    func pan(by translation: CGSize, viewportSize: CGSize? = nil) {
+        let viewportSize = validViewportSize(from: viewportSize)
+        guard isZoomed, let viewportSize else {
+            panOffset = .zero
+            return
+        }
+
+        panOffset = Self.clampedPanOffset(
+            CGSize(
+                width: panOffset.width + translation.width,
+                height: panOffset.height + translation.height
+            ),
+            zoomScale: zoomScale,
+            viewportSize: viewportSize
+        )
+    }
+
+    func clampPan(viewportSize: CGSize? = nil) {
+        guard isZoomed else {
+            panOffset = .zero
+            return
+        }
+
+        guard let viewportSize = validViewportSize(from: viewportSize) else {
+            return
+        }
+
+        panOffset = Self.clampedPanOffset(panOffset, zoomScale: zoomScale, viewportSize: viewportSize)
+    }
+
+    func normalizedPagePoint(from viewportPoint: CGPoint, viewportSize: CGSize) -> CGPoint? {
+        guard viewportSize.isValidZoomViewport, zoomScale.isFinite, zoomScale > 0 else {
+            return nil
+        }
+
+        let contentSize = Self.contentSize(for: viewportSize, zoomScale: zoomScale)
+        let contentOrigin = CGPoint(
+            x: (viewportSize.width - contentSize.width) / 2 + panOffset.width,
+            y: (viewportSize.height - contentSize.height) / 2 + panOffset.height
+        )
+        let contentPoint = CGPoint(
+            x: viewportPoint.x - contentOrigin.x,
+            y: viewportPoint.y - contentOrigin.y
+        )
+
+        return CGPoint(
+            x: contentPoint.x / contentSize.width,
+            y: contentPoint.y / contentSize.height
+        ).clampedToUnitSquare
+    }
+
     @discardableResult
     private func eraseStrokeWithoutUndo(at normalizedPosition: CGPoint, radius: CGFloat? = nil) -> Bool {
         guard pageCount > 0,
@@ -469,6 +563,102 @@ final class PDFPresentationState: ObservableObject, Identifiable {
             penStrokesByPage[currentPageIndex] = strokes
         }
     }
+
+    private var activeZoomViewportSize: CGSize? {
+        validViewportSize(from: nil)
+    }
+
+    private func validViewportSize(from viewportSize: CGSize?) -> CGSize? {
+        if let viewportSize, viewportSize.isValidZoomViewport {
+            return viewportSize
+        }
+
+        guard lastZoomViewportSize.isValidZoomViewport else {
+            return nil
+        }
+
+        return lastZoomViewportSize
+    }
+
+    private func setZoomScale(_ proposedScale: CGFloat, anchor: CGPoint?, viewportSize: CGSize?) {
+        guard proposedScale.isFinite else {
+            return
+        }
+
+        let oldScale = zoomScale
+        let newScale = min(max(proposedScale, Self.minimumZoomScale), Self.maximumZoomScale)
+
+        guard newScale > Self.minimumZoomScale + 0.0001 else {
+            resetZoom()
+            return
+        }
+
+        if let viewportSize = validViewportSize(from: viewportSize),
+           let anchor,
+           oldScale.isFinite,
+           oldScale > 0 {
+            panOffset = anchoredPanOffset(
+                for: newScale,
+                oldScale: oldScale,
+                anchor: anchor,
+                viewportSize: viewportSize
+            )
+            zoomScale = newScale
+            clampPan(viewportSize: viewportSize)
+        } else {
+            zoomScale = newScale
+            clampPan(viewportSize: viewportSize)
+        }
+    }
+
+    private func anchoredPanOffset(
+        for newScale: CGFloat,
+        oldScale: CGFloat,
+        anchor: CGPoint,
+        viewportSize: CGSize
+    ) -> CGSize {
+        let oldContentSize = Self.contentSize(for: viewportSize, zoomScale: oldScale)
+        let newContentSize = Self.contentSize(for: viewportSize, zoomScale: newScale)
+        let oldContentOrigin = CGPoint(
+            x: (viewportSize.width - oldContentSize.width) / 2 + panOffset.width,
+            y: (viewportSize.height - oldContentSize.height) / 2 + panOffset.height
+        )
+        let normalizedAnchor = CGPoint(
+            x: (anchor.x - oldContentOrigin.x) / oldContentSize.width,
+            y: (anchor.y - oldContentOrigin.y) / oldContentSize.height
+        ).clampedToUnitSquare
+
+        return CGSize(
+            width: anchor.x - normalizedAnchor.x * newContentSize.width + newContentSize.width / 2 - viewportSize.width / 2,
+            height: anchor.y - normalizedAnchor.y * newContentSize.height + newContentSize.height / 2 - viewportSize.height / 2
+        )
+    }
+
+    private static func clampedPanOffset(
+        _ panOffset: CGSize,
+        zoomScale: CGFloat,
+        viewportSize: CGSize
+    ) -> CGSize {
+        guard viewportSize.isValidZoomViewport, zoomScale > Self.minimumZoomScale else {
+            return .zero
+        }
+
+        let contentSize = contentSize(for: viewportSize, zoomScale: zoomScale)
+        let maximumX = max((contentSize.width - viewportSize.width) / 2, 0)
+        let maximumY = max((contentSize.height - viewportSize.height) / 2, 0)
+
+        return CGSize(
+            width: min(max(panOffset.width, -maximumX), maximumX),
+            height: min(max(panOffset.height, -maximumY), maximumY)
+        )
+    }
+
+    private static func contentSize(for viewportSize: CGSize, zoomScale: CGFloat) -> CGSize {
+        CGSize(
+            width: viewportSize.width * zoomScale,
+            height: viewportSize.height * zoomScale
+        )
+    }
 }
 
 private enum MarkupUndoAction {
@@ -521,5 +711,11 @@ private extension CGPoint {
         )
 
         return distance(to: closestPoint)
+    }
+}
+
+private extension CGSize {
+    var isValidZoomViewport: Bool {
+        width.isFinite && height.isFinite && width > 0 && height > 0
     }
 }
