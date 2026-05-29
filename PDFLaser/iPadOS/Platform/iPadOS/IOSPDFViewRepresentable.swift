@@ -9,6 +9,7 @@ struct IOSPDFViewRepresentable: UIViewRepresentable {
         let view = IOSPDFPageView()
         view.backgroundColor = .white
         view.isOpaque = true
+        view.isUserInteractionEnabled = false
         return view
     }
 
