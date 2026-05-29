@@ -44,6 +44,7 @@ final class PDFPresentationState: ObservableObject, Identifiable {
     @Published var zoomScale: CGFloat = 1
     @Published var panOffset: CGSize = .zero
     @Published var errorMessage: String?
+    @Published var penColorPreset: PenColorPreset = .crimson
     @Published private(set) var sourceDocument: PresentationDocumentSource?
     @Published private(set) var laserDotPersistsUntilCleared = false
     @Published private var markupUndoActionsByPage: [Int: [MarkupUndoAction]] = [:]
@@ -53,7 +54,10 @@ final class PDFPresentationState: ObservableObject, Identifiable {
     static let maximumZoomScale: CGFloat = 4
     static let keyboardZoomStep: CGFloat = 1.25
 
-    var penColor: PlatformColor = .defaultPenColor
+    var penColor: PlatformColor {
+        penColorPreset.color
+    }
+
     var penWidth: CGFloat = 3
     var eraserRadius: CGFloat = 0.025
     private var activeEraseSnapshot: [PenStroke]?

@@ -5,12 +5,67 @@ import UniformTypeIdentifiers
 import XCTest
 @testable import PDFLaser
 
+#if os(macOS)
+import AppKit
+#else
+import UIKit
+#endif
+
 @MainActor
 final class PDFPresentationStateTests: XCTestCase {
     func testDefaultToolIsTrailLaser() {
         let state = PDFPresentationState()
 
         XCTAssertEqual(state.selectedTool, .laserTrail)
+    }
+
+    func testDefaultToolColorsUseFirstPresets() {
+        let state = PDFPresentationState()
+
+        XCTAssertEqual(state.laserSettings.colorPreset, .ruby)
+        XCTAssertEqual(state.penColorPreset, .crimson)
+        assertPlatformColorEqual(state.laserSettings.color, LaserColorPreset.ruby.mainColor)
+        assertPlatformColorEqual(state.laserSettings.haloColor, LaserColorPreset.ruby.haloColor)
+        assertPlatformColorEqual(state.laserSettings.shadowColor, LaserColorPreset.ruby.shadowColor)
+        assertPlatformColorEqual(state.penColor, PenColorPreset.crimson.color)
+    }
+
+    func testLaserPresetsProvideDistinctMainHaloAndShadowColors() {
+        let mainSignatures = Set(LaserColorPreset.allCases.map { colorSignature($0.mainColor) })
+        let haloSignatures = Set(LaserColorPreset.allCases.map { colorSignature($0.haloColor) })
+        let shadowSignatures = Set(LaserColorPreset.allCases.map { colorSignature($0.shadowColor) })
+
+        XCTAssertEqual(mainSignatures.count, LaserColorPreset.allCases.count)
+        XCTAssertEqual(haloSignatures.count, LaserColorPreset.allCases.count)
+        XCTAssertEqual(shadowSignatures.count, LaserColorPreset.allCases.count)
+
+        for preset in LaserColorPreset.allCases {
+            XCTAssertNotEqual(colorSignature(preset.mainColor), colorSignature(preset.haloColor))
+            XCTAssertNotEqual(colorSignature(preset.mainColor), colorSignature(preset.shadowColor))
+            XCTAssertNotEqual(colorSignature(preset.haloColor), colorSignature(preset.shadowColor))
+        }
+    }
+
+    func testPenPresetAppliesToNewStrokesOnly() throws {
+        let url = try makeTemporaryPDF(pageCount: 1)
+        let state = PDFPresentationState()
+        state.openPDF(url: url)
+
+        state.penColorPreset = .crimson
+        state.beginPenStroke(at: CGPoint(x: 0.1, y: 0.1))
+        state.penColorPreset = .royalBlue
+
+        let activeStroke = try XCTUnwrap(state.activePenStroke)
+        assertPlatformColorEqual(activeStroke.color, PenColorPreset.crimson.color)
+
+        state.endPenStroke(at: CGPoint(x: 0.2, y: 0.2))
+        state.beginPenStroke(at: CGPoint(x: 0.3, y: 0.3))
+        state.endPenStroke(at: CGPoint(x: 0.4, y: 0.4))
+
+        let strokes = try XCTUnwrap(state.penStrokesByPage[0])
+        XCTAssertEqual(strokes.count, 2)
+        assertPlatformColorEqual(strokes[0].color, PenColorPreset.crimson.color)
+        assertPlatformColorEqual(strokes[1].color, PenColorPreset.royalBlue.color)
     }
 
     func testTabsReusePristineUntitledTabWhenOpeningPDF() throws {
@@ -1264,5 +1319,54 @@ final class PDFPresentationStateTests: XCTestCase {
         }
 
         return (pixel[0], pixel[1], pixel[2], pixel[3])
+    }
+
+    private func assertPlatformColorEqual(
+        _ lhs: PlatformColor,
+        _ rhs: PlatformColor,
+        accuracy: CGFloat = 0.001,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let lhsComponents = platformColorComponents(lhs)
+        let rhsComponents = platformColorComponents(rhs)
+
+        XCTAssertEqual(lhsComponents.red, rhsComponents.red, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhsComponents.green, rhsComponents.green, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhsComponents.blue, rhsComponents.blue, accuracy: accuracy, file: file, line: line)
+        XCTAssertEqual(lhsComponents.alpha, rhsComponents.alpha, accuracy: accuracy, file: file, line: line)
+    }
+
+    private func colorSignature(_ color: PlatformColor) -> String {
+        let components = platformColorComponents(color)
+        return [
+            components.red,
+            components.green,
+            components.blue,
+            components.alpha
+        ]
+        .map { String(Int(($0 * 1_000).rounded())) }
+        .joined(separator: ",")
+    }
+
+    private func platformColorComponents(
+        _ color: PlatformColor
+    ) -> (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
+        #if os(macOS)
+        let convertedColor = color.usingColorSpace(.sRGB) ?? color
+        return (
+            convertedColor.redComponent,
+            convertedColor.greenComponent,
+            convertedColor.blueComponent,
+            convertedColor.alphaComponent
+        )
+        #else
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        return (red, green, blue, alpha)
+        #endif
     }
 }

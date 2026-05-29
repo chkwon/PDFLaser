@@ -51,7 +51,7 @@ struct PresentationCanvasView: View {
             return
         }
 
-        let color = Color(platformColor: state.laserSettings.color)
+        let colors = LaserDrawColors(settings: state.laserSettings)
         let duration = max(state.laserSettings.trailDuration, 0.1)
         let fadeDelay = max(state.laserSettings.trailFadeDelay, 0)
         let segments = state.laserTrailSegments
@@ -75,24 +75,24 @@ struct PresentationCanvasView: View {
             return
         }
 
-        drawLaserTrail(segments: segments, color: color, opacity: opacity, in: &context, size: size)
+        drawLaserTrail(segments: segments, colors: colors, opacity: opacity, in: &context, size: size)
     }
 
     private func drawLaserTrail(
         segments: [[LaserPoint]],
-        color: Color,
+        colors: LaserDrawColors,
         opacity: Double,
         in context: inout GraphicsContext,
         size: CGSize
     ) {
         for segment in segments where !segment.isEmpty {
-            drawLaserTrailSegment(points: segment, color: color, opacity: opacity, in: &context, size: size)
+            drawLaserTrailSegment(points: segment, colors: colors, opacity: opacity, in: &context, size: size)
         }
     }
 
     private func drawLaserTrailSegment(
         points: [LaserPoint],
-        color: Color,
+        colors: LaserDrawColors,
         opacity: Double,
         in context: inout GraphicsContext,
         size: CGSize
@@ -102,7 +102,7 @@ struct PresentationCanvasView: View {
             drawHighlightedLaserDot(
                 center: center,
                 radius: max(state.laserSettings.width * zoomScale, 5),
-                color: color,
+                colors: colors,
                 opacity: opacity,
                 in: &context
             )
@@ -116,7 +116,7 @@ struct PresentationCanvasView: View {
 
         drawGoodNotesLaserPath(
             path,
-            color: color,
+            colors: colors,
             baseWidth: state.laserSettings.width * zoomScale,
             opacity: opacity,
             in: &context
@@ -125,24 +125,32 @@ struct PresentationCanvasView: View {
 
     private func drawGoodNotesLaserPath(
         _ path: Path,
-        color: Color,
+        colors: LaserDrawColors,
         baseWidth: CGFloat,
         opacity: Double,
         in context: inout GraphicsContext
     ) {
         let width = max(baseWidth, 1)
 
+        var shadowContext = context
+        shadowContext.addFilter(.blur(radius: width * 1.25))
+        shadowContext.stroke(
+            path,
+            with: .color(colors.shadow.opacity(opacity * 0.18)),
+            style: laserStrokeStyle(width: width * 3.4)
+        )
+
         var haloContext = context
         haloContext.addFilter(.blur(radius: width * 0.9))
         haloContext.stroke(
             path,
-            with: .color(color.opacity(opacity * 0.24)),
+            with: .color(colors.halo.opacity(opacity * 0.32)),
             style: laserStrokeStyle(width: width * 2.7)
         )
 
         context.stroke(
             path,
-            with: .color(color.opacity(opacity)),
+            with: .color(colors.main.opacity(opacity)),
             style: laserStrokeStyle(width: width)
         )
         context.stroke(
@@ -168,13 +176,13 @@ struct PresentationCanvasView: View {
         }
 
         let center = point.normalizedPosition.denormalized(in: size)
-        let color = Color(platformColor: state.laserSettings.color)
+        let colors = LaserDrawColors(settings: state.laserSettings)
 
         if state.isLaserDotPressed {
             drawHighlightedLaserDot(
                 center: center,
                 radius: state.laserSettings.dotRadius * zoomScale,
-                color: color,
+                colors: colors,
                 opacity: 1,
                 in: &context
             )
@@ -182,7 +190,7 @@ struct PresentationCanvasView: View {
             let radius = max(state.laserSettings.dotRadius * zoomScale * 0.42, 3)
             context.fill(
                 Path(ellipseIn: circleRect(center: center, radius: radius)),
-                with: .color(color)
+                with: .color(colors.main)
             )
         }
     }
@@ -190,20 +198,20 @@ struct PresentationCanvasView: View {
     private func drawHighlightedLaserDot(
         center: CGPoint,
         radius: CGFloat,
-        color: Color,
+        colors: LaserDrawColors,
         opacity: Double,
         in context: inout GraphicsContext
     ) {
         let coreRadius = max(radius, 4)
-        let haloRadius = coreRadius * 1.75
+        let haloRadius = coreRadius * 2.1
 
         context.fill(
             Path(ellipseIn: circleRect(center: center, radius: haloRadius)),
             with: .radialGradient(
                 Gradient(stops: [
-                    .init(color: color.opacity(opacity * 0.24), location: 0),
-                    .init(color: .white.opacity(opacity * 0.12), location: 0.72),
-                    .init(color: .white.opacity(0), location: 1)
+                    .init(color: colors.halo.opacity(opacity * 0.34), location: 0),
+                    .init(color: colors.shadow.opacity(opacity * 0.18), location: 0.68),
+                    .init(color: colors.shadow.opacity(0), location: 1)
                 ]),
                 center: center,
                 startRadius: coreRadius,
@@ -212,7 +220,7 @@ struct PresentationCanvasView: View {
         )
         context.fill(
             Path(ellipseIn: circleRect(center: center, radius: coreRadius)),
-            with: .color(color.opacity(opacity))
+            with: .color(colors.main.opacity(opacity))
         )
         context.fill(
             Path(ellipseIn: circleRect(center: center, radius: coreRadius * 0.36)),
@@ -298,5 +306,17 @@ struct PresentationCanvasView: View {
         }
 
         return path
+    }
+}
+
+private struct LaserDrawColors {
+    let main: Color
+    let halo: Color
+    let shadow: Color
+
+    init(settings: LaserSettings) {
+        main = Color(platformColor: settings.color)
+        halo = Color(platformColor: settings.haloColor)
+        shadow = Color(platformColor: settings.shadowColor)
     }
 }
