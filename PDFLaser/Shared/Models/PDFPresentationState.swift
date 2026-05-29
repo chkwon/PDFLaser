@@ -97,6 +97,11 @@ final class PDFPresentationState: ObservableObject, Identifiable {
         !(penStrokesByPage[currentPageIndex] ?? []).isEmpty
     }
 
+    var hasPenMarkup: Bool {
+        penStrokesByPage.values.contains { !$0.isEmpty } ||
+            activePenStroke?.normalizedPoints.isEmpty == false
+    }
+
     var currentPageCanUndo: Bool {
         !(markupUndoActionsByPage[currentPageIndex] ?? []).isEmpty
     }

@@ -23,4 +23,19 @@ enum PresentationTool: String, CaseIterable, Identifiable {
             return "Erase"
         }
     }
+
+    var systemImageName: String {
+        switch self {
+        case .none:
+            return "slash.circle"
+        case .laserDot:
+            return "scope"
+        case .laserTrail:
+            return "scribble"
+        case .pen:
+            return "pencil.tip"
+        case .erase:
+            return "eraser"
+        }
+    }
 }

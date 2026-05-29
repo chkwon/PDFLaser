@@ -11,6 +11,70 @@ final class PDFPresentationStateTests: XCTestCase {
         XCTAssertEqual(state.selectedTool, .none)
     }
 
+    func testTabsReusePristineUntitledTabWhenOpeningPDF() throws {
+        let url = try makeTemporaryPDF(pageCount: 1)
+        let tabsModel = PDFTabsModel()
+        let initialTabID = tabsModel.activeTabID
+
+        let openedTab = tabsModel.openPDF(url: url)
+
+        XCTAssertEqual(tabsModel.tabs.count, 1)
+        XCTAssertEqual(openedTab.id, initialTabID)
+        XCTAssertEqual(tabsModel.activeTab.sourcePDFURL, url)
+    }
+
+    func testTabsPreserveUntitledTabWithCommittedPenMarkupWhenOpeningPDF() throws {
+        let url = try makeTemporaryPDF(pageCount: 1)
+        let tabsModel = PDFTabsModel()
+        let initialTab = tabsModel.activeTab
+        initialTab.addPenStroke(
+            PenStroke(
+                normalizedPoints: [CGPoint(x: 0.1, y: 0.1)],
+                color: .defaultPenColor,
+                width: 3
+            )
+        )
+
+        let openedTab = tabsModel.openPDF(url: url)
+
+        XCTAssertEqual(tabsModel.tabs.count, 2)
+        XCTAssertEqual(tabsModel.tabs[0].id, initialTab.id)
+        XCTAssertNil(tabsModel.tabs[0].sourcePDFURL)
+        XCTAssertEqual(openedTab.sourcePDFURL, url)
+        XCTAssertEqual(tabsModel.activeTabID, openedTab.id)
+    }
+
+    func testTabsPreserveUntitledTabWithActivePenMarkupWhenOpeningPDF() throws {
+        let url = try makeTemporaryPDF(pageCount: 1)
+        let tabsModel = PDFTabsModel()
+        let initialTab = tabsModel.activeTab
+        initialTab.beginPenStroke(at: CGPoint(x: 0.1, y: 0.1))
+
+        let openedTab = tabsModel.openPDF(url: url)
+
+        XCTAssertEqual(tabsModel.tabs.count, 2)
+        XCTAssertEqual(tabsModel.tabs[0].id, initialTab.id)
+        XCTAssertNil(tabsModel.tabs[0].sourcePDFURL)
+        XCTAssertEqual(openedTab.sourcePDFURL, url)
+        XCTAssertEqual(tabsModel.activeTabID, openedTab.id)
+    }
+
+    func testOpeningMultiplePDFsCreatesTabsInOrder() throws {
+        let firstURL = try makeTemporaryPDF(pageCount: 1)
+        let secondURL = try makeTemporaryPDF(pageCount: 2)
+        let tabsModel = PDFTabsModel()
+
+        let openedTabs = tabsModel.openPDFs(urls: [firstURL, secondURL])
+
+        XCTAssertEqual(openedTabs.count, 2)
+        XCTAssertEqual(openedTabs[0].sourcePDFURL, firstURL)
+        XCTAssertEqual(openedTabs[1].sourcePDFURL, secondURL)
+        XCTAssertEqual(tabsModel.tabs.count, 2)
+        XCTAssertEqual(tabsModel.tabs[0].sourcePDFURL, firstURL)
+        XCTAssertEqual(tabsModel.tabs[1].sourcePDFURL, secondURL)
+        XCTAssertEqual(tabsModel.activeTab.sourcePDFURL, secondURL)
+    }
+
     func testOpeningPDFResetsNavigationAndMarkup() throws {
         let url = try makeTemporaryPDF(pageCount: 2)
         let state = PDFPresentationState()

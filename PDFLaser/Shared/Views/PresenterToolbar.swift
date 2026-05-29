@@ -8,6 +8,7 @@ struct PresenterToolbar: View {
     @ObservedObject var state: PDFPresentationState
     var openAction: () -> Void
     var saveAction: () -> Void
+    var shareAction: () -> Void
     #if os(macOS)
     var isFullScreen: Bool = false
     var toggleFullScreenAction: () -> Void = {
@@ -17,28 +18,25 @@ struct PresenterToolbar: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Button(action: openAction) {
-                Label("Open PDF", systemImage: "folder")
-            }
+            toolbarButton("Open PDF", systemImage: "folder", action: openAction)
 
-            Button(action: saveAction) {
-                Label("Save Marked PDF", systemImage: "square.and.arrow.down")
-            }
+            toolbarButton("Save Marked PDF", systemImage: "square.and.arrow.down", action: saveAction)
+            .disabled(state.document == nil)
+
+            toolbarButton("Share Marked PDF", systemImage: "square.and.arrow.up", action: shareAction)
             .disabled(state.document == nil)
 
             Divider()
                 .frame(height: 22)
 
-            Button(action: { state.previousPage() }) {
-                Label("Previous", systemImage: "chevron.left")
+            toolbarButton("Previous", systemImage: "chevron.left") {
+                state.previousPage()
             }
-            .labelStyle(.iconOnly)
             .disabled(!state.canGoPrevious)
 
-            Button(action: { state.nextPage() }) {
-                Label("Next", systemImage: "chevron.right")
+            toolbarButton("Next", systemImage: "chevron.right") {
+                state.nextPage()
             }
-            .labelStyle(.iconOnly)
             .disabled(!state.canGoNext)
 
             Text("\(state.currentPageDisplayNumber) / \(state.pageCount)")
@@ -51,29 +49,34 @@ struct PresenterToolbar: View {
 
             Picker("Tool", selection: $state.selectedTool) {
                 ForEach(PresentationTool.allCases) { tool in
-                    Text(tool.title)
+                    Label(tool.title, systemImage: tool.systemImageName)
+                        .labelStyle(.iconOnly)
+                        .accessibilityLabel(Text(tool.title))
+                        .presenterToolbarHelp(tool.title)
                         .tag(tool)
                 }
             }
             .pickerStyle(.segmented)
-            .frame(maxWidth: 420)
+            .frame(width: 210)
+            .accessibilityLabel(Text("Tool"))
+            .presenterToolbarHelp("Tool")
 
             Spacer(minLength: 8)
 
-            Button(action: { state.undoLastStrokeOnCurrentPage() }) {
-                Label("Undo", systemImage: "arrow.uturn.backward")
+            toolbarButton("Undo", systemImage: "arrow.uturn.backward") {
+                state.undoLastStrokeOnCurrentPage()
             }
             .disabled(!state.currentPageCanUndo)
             .keyboardShortcut("z", modifiers: .command)
 
-            Button(action: { state.redoLastUndoOnCurrentPage() }) {
-                Label("Redo", systemImage: "arrow.uturn.forward")
+            toolbarButton("Redo", systemImage: "arrow.uturn.forward") {
+                state.redoLastUndoOnCurrentPage()
             }
             .disabled(!state.currentPageCanRedo)
             .keyboardShortcut("z", modifiers: [.command, .shift])
 
-            Button(action: { state.clearMarkupOnCurrentPage() }) {
-                Label("Clear", systemImage: "trash")
+            toolbarButton("Clear", systemImage: "trash") {
+                state.clearMarkupOnCurrentPage()
             }
             .disabled(!state.currentPageHasMarkup)
 
@@ -81,15 +84,13 @@ struct PresenterToolbar: View {
             Divider()
                 .frame(height: 22)
 
-            Button(action: toggleFullScreenAction) {
-                Label(
-                    isFullScreen ? "Exit Full Screen" : "Enter Full Screen",
-                    systemImage: isFullScreen
-                        ? "arrow.down.right.and.arrow.up.left"
-                        : "arrow.up.left.and.arrow.down.right"
-                )
-            }
-            .labelStyle(.iconOnly)
+            toolbarButton(
+                isFullScreen ? "Exit Full Screen" : "Enter Full Screen",
+                systemImage: isFullScreen
+                    ? "arrow.down.right.and.arrow.up.left"
+                    : "arrow.up.left.and.arrow.down.right",
+                action: toggleFullScreenAction
+            )
             #endif
         }
         .buttonStyle(.bordered)
@@ -97,5 +98,30 @@ struct PresenterToolbar: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(.bar)
+    }
+
+    private func toolbarButton(
+        _ title: String,
+        systemImage: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+                .labelStyle(.iconOnly)
+                .frame(minWidth: 20)
+        }
+        .accessibilityLabel(Text(title))
+        .presenterToolbarHelp(title)
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func presenterToolbarHelp(_ title: String) -> some View {
+        #if os(macOS)
+        help(title)
+        #else
+        self
+        #endif
     }
 }

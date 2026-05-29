@@ -52,14 +52,21 @@ final class PDFTabsModel: ObservableObject {
         activeTabID = tabs[next].id
     }
 
-    func openPDF(url: URL) {
+    @discardableResult
+    func openPDF(url: URL) -> PDFPresentationState {
         let target: PDFPresentationState
-        if activeTab.sourcePDFURL == nil {
+        if shouldReuseActiveTabForOpeningPDF {
             target = activeTab
         } else {
             target = newTab(activate: true)
         }
         target.openPDF(url: url)
+        return target
+    }
+
+    @discardableResult
+    func openPDFs(urls: [URL]) -> [PDFPresentationState] {
+        urls.map { openPDF(url: $0) }
     }
 
     func closeTab(id: PDFPresentationState.ID) {
@@ -82,5 +89,9 @@ final class PDFTabsModel: ObservableObject {
 
     func closeActiveTab() {
         closeTab(id: activeTabID)
+    }
+
+    private var shouldReuseActiveTabForOpeningPDF: Bool {
+        activeTab.sourcePDFURL == nil && !activeTab.hasPenMarkup
     }
 }

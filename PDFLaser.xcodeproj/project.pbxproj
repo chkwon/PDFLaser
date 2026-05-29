@@ -72,6 +72,7 @@
 		347E8814DAF6EA5469254DE3 /* MacPointerInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacPointerInputView.swift; sourceTree = "<group>"; };
 		4099C4EFB974B3874394E4FC /* PDFDocumentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFDocumentLoader.swift; sourceTree = "<group>"; };
 		4E87C521B023F7B750FAD04A /* ExportedPDFDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportedPDFDocument.swift; sourceTree = "<group>"; };
+		51ADE6D627B8E6E9119A456B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		584E3148BC600A75919F5BD7 /* PDFLaser-macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PDFLaser-macOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EF8BA6E55DFDCE6159508AD /* PresentationCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentationCanvasView.swift; sourceTree = "<group>"; };
 		734CBE59C670FEEBFC7BC54F /* PresenterToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenterToolbar.swift; sourceTree = "<group>"; };
@@ -200,6 +201,7 @@
 		7921A009F599CF849B9F6D44 /* iPadOS */ = {
 			isa = PBXGroup;
 			children = (
+				51ADE6D627B8E6E9119A456B /* Info.plist */,
 				341F845D628966202806512C /* Platform */,
 			);
 			path = iPadOS;
@@ -427,8 +429,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "PDF Laser";
+				INFOPLIST_FILE = PDFLaser/iPadOS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -446,8 +447,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "PDF Laser";
+				INFOPLIST_FILE = PDFLaser/iPadOS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -494,7 +494,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+					CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -512,7 +512,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MARKETING_VERSION = 0.1;
+					MARKETING_VERSION = 0.1.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -558,7 +558,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+					CURRENT_PROJECT_VERSION = 6;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -570,7 +570,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MARKETING_VERSION = 0.1;
+					MARKETING_VERSION = 0.1.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_MODULE_NAME = PDFLaser;
