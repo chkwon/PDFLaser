@@ -35,5 +35,5 @@
   <circle cx="790" cy="442" r="21" fill="#FFF7F2"/>
   <circle cx="790" cy="442" r="40" fill="#FFFFFF" opacity="0.16"/>
 
-  <text x="780" y="912" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Arial, sans-serif" font-size="116" font-weight="800" letter-spacing="0" fill="#516174">PDF</text>
+  <text x="740" y="912" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Arial, sans-serif" font-size="232" font-weight="800" letter-spacing="0" fill="#516174">PDF</text>
 </svg>
