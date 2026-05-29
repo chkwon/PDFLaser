@@ -28,6 +28,10 @@ final class MacPDFPageView: NSView {
         true
     }
 
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        nil
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         NSColor.white.setFill()
         bounds.fill()

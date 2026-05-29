@@ -46,6 +46,7 @@ struct PDFSlideView: View {
             }
             .frame(width: contentSize.width, height: contentSize.height)
             .offset(x: state.panOffset.width, y: state.panOffset.height)
+            .allowsHitTesting(false)
 
             #if os(macOS)
             MacPointerInputView(state: state)
