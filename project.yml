@@ -6,8 +6,8 @@ settings:
   base:
     SWIFT_VERSION: 6.0
     PRODUCT_MODULE_NAME: PDFLaser
-    MARKETING_VERSION: 0.1.6
-    CURRENT_PROJECT_VERSION: 6
+    MARKETING_VERSION: 0.1.9
+    CURRENT_PROJECT_VERSION: 9
 targets:
   PDFLaser-macOS:
     type: application

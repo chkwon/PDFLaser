@@ -97,6 +97,7 @@ struct PresenterToolbar: View {
         }
         .buttonStyle(.bordered)
         .controlSize(.regular)
+        .frame(minHeight: ToolbarLayout.contentHeight)
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(.bar)
@@ -132,7 +133,7 @@ struct PresenterToolbar: View {
         selectedPreset: P,
         select: @escaping (P) -> Void
     ) -> some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 5) {
             ForEach(presets) { preset in
                 let isSelected = preset == selectedPreset
 
@@ -141,20 +142,28 @@ struct PresenterToolbar: View {
                 } label: {
                     ZStack {
                         if isSelected {
-                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            RoundedRectangle(cornerRadius: ToolbarLayout.swatchSelectionCornerRadius, style: .continuous)
                                 .fill(Color.secondary.opacity(0.18))
+                                .frame(
+                                    width: ToolbarLayout.swatchSelectionSize,
+                                    height: ToolbarLayout.swatchSelectionSize
+                                )
                         }
 
                         Circle()
                             .fill(Color(platformColor: preset.swatchColor))
-                            .frame(width: 18, height: 18)
+                            .frame(
+                                width: ToolbarLayout.swatchCircleDiameter,
+                                height: ToolbarLayout.swatchCircleDiameter
+                            )
                             .overlay {
                                 Circle()
                                     .strokeBorder(Color.primary.opacity(isSelected ? 0.32 : 0.16), lineWidth: 1)
                             }
                             .shadow(color: .black.opacity(0.16), radius: 1, y: 1)
                     }
-                    .frame(width: 30, height: 28)
+                    .frame(width: ToolbarLayout.swatchButtonWidth, height: ToolbarLayout.contentHeight)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("\(preset.title) \(title)"))
@@ -178,6 +187,14 @@ struct PresenterToolbar: View {
         .accessibilityLabel(Text(title))
         .presenterToolbarHelp(title)
     }
+}
+
+private enum ToolbarLayout {
+    static let contentHeight: CGFloat = 28
+    static let swatchButtonWidth: CGFloat = 26
+    static let swatchSelectionSize: CGFloat = 20
+    static let swatchSelectionCornerRadius: CGFloat = 6
+    static let swatchCircleDiameter: CGFloat = 12
 }
 
 private protocol ToolbarColorPreset: Hashable, Identifiable {
