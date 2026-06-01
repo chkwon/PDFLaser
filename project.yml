@@ -55,15 +55,15 @@ targets:
           CODE_SIGN_IDENTITY: Developer ID Application
           CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
           OTHER_CODE_SIGN_FLAGS: --timestamp
-  PDFLaser-iPadOS:
+  PDFLaser-iOS:
     type: application
     platform: iOS
     deploymentTarget: "17.0"
     sources:
       - path: PDFLaser/Shared
-      - path: PDFLaser/iPadOS
+      - path: PDFLaser/iOS
     info:
-      path: PDFLaser/iPadOS/Info.plist
+      path: PDFLaser/iOS/Info.plist
       properties:
         CFBundleDisplayName: PDF Laser
         CFBundleShortVersionString: $(MARKETING_VERSION)
@@ -84,12 +84,21 @@ targets:
               - public.heif
               - public.tiff
         LSSupportsOpeningDocumentsInPlace: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
     settings:
       base:
         PRODUCT_NAME: PDF Laser
-        PRODUCT_BUNDLE_IDENTIFIER: com.chkwon.PDFLaser.iPadOS
+        PRODUCT_BUNDLE_IDENTIFIER: com.chkwon.PDFLaser.iOS
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        TARGETED_DEVICE_FAMILY: 2
+        TARGETED_DEVICE_FAMILY: "1,2"
   PDFLaserTests:
     type: bundle.unit-test
     platform: macOS
@@ -113,7 +122,7 @@ schemes:
     test:
       targets:
         - PDFLaserTests
-  PDFLaser-iPadOS:
+  PDFLaser-iOS:
     build:
       targets:
-        PDFLaser-iPadOS: all
+        PDFLaser-iOS: all
