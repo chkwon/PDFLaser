@@ -315,6 +315,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					1C295E31154127872C022E3A = {
+						DevelopmentTeam = 6CM5MD58K2;
+					};
 				};
 			};
 			buildConfigurationList = 366917E15A52F0E8217447ED /* Build configuration list for PBXProject "PDFLaser" */;
@@ -562,6 +565,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 6CM5MD58K2;
 				INFOPLIST_FILE = PDFLaser/iOS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -637,6 +641,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 6CM5MD58K2;
 				INFOPLIST_FILE = PDFLaser/iOS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (

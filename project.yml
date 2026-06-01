@@ -99,6 +99,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.chkwon.PDFLaser.iOS
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         TARGETED_DEVICE_FAMILY: "1,2"
+        DEVELOPMENT_TEAM: 6CM5MD58K2
   PDFLaserTests:
     type: bundle.unit-test
     platform: macOS
