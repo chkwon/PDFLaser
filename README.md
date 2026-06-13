@@ -71,7 +71,7 @@ Build the `PDFLaser-macOS` or `PDFLaser-iPadOS` scheme from Xcode.
 
 The `macos-release` GitHub Actions workflow builds the macOS app, signs it with a Developer ID Application certificate, notarizes it with Apple, staples the notarization ticket, uploads a workflow artifact, and publishes a GitHub Release asset named like `PDF-Laser-v0.1-macOS-universal.zip`.
 
-The workflow also mirrors that zip into the public `chkwon/homebrew-tap` release assets and updates `Casks/pdflaser.rb`, so Homebrew can install the app without requiring access to this source repository.
+The workflow then updates `Casks/pdflaser.rb` in `chkwon/homebrew-tap` to point at the new release. Homebrew downloads the app directly from this repository's public GitHub releases.
 
 Required GitHub repository secrets:
 

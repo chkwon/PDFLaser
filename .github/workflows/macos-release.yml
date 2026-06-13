@@ -198,26 +198,6 @@ jobs:
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           path: homebrew-tap
 
-      - name: Publish Homebrew tap binary release
-        env:
-          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
-          VERSION: ${{ steps.release.outputs.short_version }}
-          ZIP_PATH: ${{ steps.package.outputs.zip_path }}
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          TAP_TAG="pdflaser-v${VERSION}"
-
-          if gh release view "${TAP_TAG}" --repo chkwon/homebrew-tap >/dev/null 2>&1; then
-            gh release upload "${TAP_TAG}" "${ZIP_PATH}" --repo chkwon/homebrew-tap --clobber
-          else
-            gh release create "${TAP_TAG}" "${ZIP_PATH}" \
-              --repo chkwon/homebrew-tap \
-              --title "PDF Laser v${VERSION}" \
-              --notes "Signed and notarized macOS universal app for Homebrew Cask installation."
-          fi
-
       - name: Update Homebrew cask
         env:
           VERSION: ${{ steps.release.outputs.short_version }}
@@ -235,18 +215,17 @@ jobs:
             version "${VERSION}"
             sha256 "${SHA256}"
 
-            url "https://github.com/chkwon/homebrew-tap/releases/download/pdflaser-v#{version}/PDF-Laser-v#{version}-macOS-universal.zip"
+            url "https://github.com/chkwon/PDFLaser/releases/download/v#{version}/PDF-Laser-v#{version}-macOS-universal.zip"
             name "PDF Laser"
             desc "PDF slide presenter with laser pointer and pen markup"
             homepage "https://github.com/chkwon/PDFLaser"
 
             livecheck do
-              url "https://github.com/chkwon/homebrew-tap/releases/latest"
+              url "https://github.com/chkwon/PDFLaser/releases/latest"
               strategy :github_latest
-              regex(/pdflaser[._-]v?(\d+(?:\.\d+)+)/i)
             end
 
-            depends_on macos: ">= :sonoma"
+            depends_on macos: :sonoma
 
             app "PDF Laser.app"
 
