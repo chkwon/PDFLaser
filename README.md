@@ -33,7 +33,7 @@ brew upgrade pdflaser
 - Opens a user-selected PDF or common image file.
 - Presents exactly one fitted page at a time.
 - Supports macOS keyboard navigation: right, down, and space for next; left, up, and backspace for previous.
-- Supports iPadOS touch navigation, on-screen previous/next controls, and best-effort external keyboard arrows.
+- Supports iOS (iPhone and iPad) touch navigation, on-screen previous/next controls, and best-effort external keyboard arrows.
 - Provides five tools: None, Dot Laser, Trail Laser, Pen, and Erase.
 - Keeps laser effects temporary.
 - Keeps pen markup in memory per page for the current app session, with stroke-based erase.
@@ -54,7 +54,7 @@ PDF Laser does not use iCloud, cloud sync, a document browser, autosave, or app-
 
 ## External Display
 
-The iPadOS target includes an `ExternalDisplayManager` stub. The intended follow-up architecture is to attach a presentation-only window to the external `UIScreen`, render the same `PDFSlideView` without the toolbar there, and keep controls on the iPad display. The MVP keeps the iPad app fully usable without an external display.
+The iOS target includes an `ExternalDisplayManager` stub. The intended follow-up architecture is to attach a presentation-only window to the external `UIScreen`, render the same `PDFSlideView` without the toolbar there, and keep controls on the device display. The MVP keeps the iOS app fully usable without an external display.
 
 ## Build
 
@@ -65,7 +65,7 @@ xcodegen generate
 open PDFLaser.xcodeproj
 ```
 
-Build the `PDFLaser-macOS` or `PDFLaser-iPadOS` scheme from Xcode.
+Build the `PDFLaser-macOS` or `PDFLaser-iOS` scheme from Xcode.
 
 ## macOS Binary Release
 

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1430"
-   version = "1.3">
+   version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES">
+      buildImplicitDependencies = "YES"
+      runPostActionsOnFailure = "NO">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -14,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9038FABCAACE83CC2954BD71"
-               BuildableName = "PDF Laser.app"
-               BlueprintName = "PDFLaser-iPadOS"
+               BlueprintIdentifier = "1C295E31154127872C022E3A"
+               BuildableName = "PDFLaser-iOS.app"
+               BlueprintName = "PDFLaser-iOS"
                ReferencedContainer = "container:PDFLaser.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -26,13 +27,14 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      onlyGenerateCoverageForSpecifiedTargets = "NO">
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9038FABCAACE83CC2954BD71"
-            BuildableName = "PDF Laser.app"
-            BlueprintName = "PDFLaser-iPadOS"
+            BlueprintIdentifier = "1C295E31154127872C022E3A"
+            BuildableName = "PDFLaser-iOS.app"
+            BlueprintName = "PDFLaser-iOS"
             ReferencedContainer = "container:PDFLaser.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -53,9 +55,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9038FABCAACE83CC2954BD71"
-            BuildableName = "PDF Laser.app"
-            BlueprintName = "PDFLaser-iPadOS"
+            BlueprintIdentifier = "1C295E31154127872C022E3A"
+            BuildableName = "PDFLaser-iOS.app"
+            BlueprintName = "PDFLaser-iOS"
             ReferencedContainer = "container:PDFLaser.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -70,9 +72,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9038FABCAACE83CC2954BD71"
-            BuildableName = "PDF Laser.app"
-            BlueprintName = "PDFLaser-iPadOS"
+            BlueprintIdentifier = "1C295E31154127872C022E3A"
+            BuildableName = "PDFLaser-iOS.app"
+            BlueprintName = "PDFLaser-iOS"
             ReferencedContainer = "container:PDFLaser.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

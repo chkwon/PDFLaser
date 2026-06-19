@@ -4,6 +4,10 @@ import SwiftUI
 import AppKit
 #endif
 
+#if os(iOS)
+import UIKit
+#endif
+
 struct PresenterToolbar: View {
     @ObservedObject var state: PDFPresentationState
     var openAction: () -> Void
@@ -17,6 +21,37 @@ struct PresenterToolbar: View {
     #endif
 
     var body: some View {
+        toolbarContainer
+    }
+
+    @ViewBuilder
+    private var toolbarContainer: some View {
+        #if os(iOS)
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            // The toolbar's fixed-width controls overflow an iPhone screen even in
+            // landscape, so let the row scroll horizontally while the bar background
+            // still spans the full width.
+            ScrollView(.horizontal, showsIndicators: false) {
+                toolbarRow
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+            }
+            .background(.bar)
+        } else {
+            toolbarRow
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(.bar)
+        }
+        #else
+        toolbarRow
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(.bar)
+        #endif
+    }
+
+    private var toolbarRow: some View {
         HStack(spacing: 10) {
             toolbarButton("Open File", systemImage: "folder", action: openAction)
 
@@ -98,9 +133,6 @@ struct PresenterToolbar: View {
         .buttonStyle(.bordered)
         .controlSize(.regular)
         .frame(minHeight: ToolbarLayout.contentHeight)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(.bar)
     }
 
     @ViewBuilder
